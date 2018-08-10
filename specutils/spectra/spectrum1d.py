@@ -202,6 +202,15 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
         __setitem__ and __delitem__ are not duplicated in this way
         as Spectrum1D does not support item assignment.
         """
+        try:
+            has_lookup = hasattr(self.wcs.wcs.forward_transform, 'lookup_table')
+        except AttributeError:
+            has_lookup = False
+        if not has_lookup:
+            logging.warning('Attempting to index from a spectrum that has a '
+                            'non-lookup table WCS. Sub-pixel information '
+                            'currently thrown away.')
+
 
         # Get a copy of the current spectral axis
         spectral_axis = self.spectral_axis
