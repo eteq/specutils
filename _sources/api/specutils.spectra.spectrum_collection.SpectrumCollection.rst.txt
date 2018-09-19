@@ -1,0 +1,49 @@
+SpectrumCollection
+==================
+
+.. currentmodule:: specutils.spectra.spectrum_collection
+
+.. autoclass:: SpectrumCollection
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SpectrumCollection.energy
+      ~SpectrumCollection.flux
+      ~SpectrumCollection.frequency
+      ~SpectrumCollection.mask
+      ~SpectrumCollection.meta
+      ~SpectrumCollection.ndim
+      ~SpectrumCollection.nspectral
+      ~SpectrumCollection.shape
+      ~SpectrumCollection.spectral_axis
+      ~SpectrumCollection.uncertainty
+      ~SpectrumCollection.wavelength
+      ~SpectrumCollection.wcs
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SpectrumCollection.from_spectra
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: energy
+   .. autoattribute:: flux
+   .. autoattribute:: frequency
+   .. autoattribute:: mask
+   .. autoattribute:: meta
+   .. autoattribute:: ndim
+   .. autoattribute:: nspectral
+   .. autoattribute:: shape
+   .. autoattribute:: spectral_axis
+   .. autoattribute:: uncertainty
+   .. autoattribute:: wavelength
+   .. autoattribute:: wcs
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_spectra

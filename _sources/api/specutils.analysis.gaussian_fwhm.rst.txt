@@ -1,0 +1,6 @@
+gaussian_fwhm
+=============
+
+.. currentmodule:: specutils.analysis
+
+.. autofunction:: gaussian_fwhm

@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>specutils.analysis.location &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../../../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for specutils.analysis.location</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A module for analysis tools focused on determining the location of</span>
+<span class="sd">spectral features.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">..spectra</span> <span class="k">import</span> <span class="n">SpectralRegion</span>
+<span class="kn">from</span> <span class="nn">..manipulation</span> <span class="k">import</span> <span class="n">extract_region</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;centroid&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="centroid"><a class="viewcode-back" href="../../../api/specutils.analysis.centroid.html#specutils.analysis.centroid">[docs]</a><span class="k">def</span> <span class="nf">centroid</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the centroid of a region, or regions, of the spectrum.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : `~specutils.spectra.spectrum1d.Spectrum1D`</span>
+<span class="sd">        The spectrum object overwhich the centroid will be calculated.</span>
+
+<span class="sd">    region: `~specutils.utils.SpectralRegion` or list of `~specutils.utils.SpectralRegion`</span>
+<span class="sd">        Region within the spectrum to calculate the centroid.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    centroid : float or list (based on region input)</span>
+<span class="sd">        Centroid of the spectrum or within the regions</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The spectrum will need to be continuum subtracted before calling</span>
+<span class="sd">    this method. See the</span>
+<span class="sd">    `analysis documentation &lt;https://specutils.readthedocs.io/en/latest/basic_analysis.html&gt;`_ for more information.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># No region, therefore whole spectrum.</span>
+    <span class="k">if</span> <span class="n">region</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_centroid_single_region</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span>
+
+    <span class="c1"># Single region</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">SpectralRegion</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_centroid_single_region</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+
+    <span class="c1"># List of regions</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_centroid_single_region</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">reg</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">region</span><span class="p">]</span></div>
+
+
+<span class="k">def</span> <span class="nf">_centroid_single_region</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the centroid of the spectrum based on the flux and uncertainty</span>
+<span class="sd">    in the spectrum.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : `~specutils.spectra.spectrum1d.Spectrum1D`</span>
+<span class="sd">        The spectrum object overwhich the centroid will be calculated.</span>
+
+<span class="sd">    region: `~specutils.utils.SpectralRegion`</span>
+<span class="sd">        Region within the spectrum to calculate the centroid.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    centroid : float or list (based on region input)</span>
+<span class="sd">        Centroid of the spectrum or within the regions</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is a helper function for the above `centroid()` method.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">region</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">calc_spectrum</span> <span class="o">=</span> <span class="n">extract_region</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">calc_spectrum</span> <span class="o">=</span> <span class="n">spectrum</span>
+
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">calc_spectrum</span><span class="o">.</span><span class="n">flux</span>
+    <span class="n">dispersion</span> <span class="o">=</span> <span class="n">calc_spectrum</span><span class="o">.</span><span class="n">spectral_axis</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">dispersion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">dispersion</span><span class="p">,</span> <span class="p">[</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># the axis=-1 will enable this to run on single-dispersion, single-flux</span>
+    <span class="c1"># and single-dispersion, multiple-flux</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">flux</span> <span class="o">*</span> <span class="n">dispersion</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,220 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Working With SpectrumCollections &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SpectrumCollection" href="api/specutils.spectra.spectrum_collection.SpectrumCollection.html" />
+    <link rel="prev" title="Spectrum1D" href="api/specutils.spectra.spectrum1d.Spectrum1D.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="api/specutils.spectra.spectrum_collection.SpectrumCollection.html" title="SpectrumCollection">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="api/specutils.spectra.spectrum1d.Spectrum1D.html" title="Spectrum1D">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      
+      <li>Working With SpectrumCollections</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="working-with-spectrumcollections">
+<h1>Working With SpectrumCollections<a class="headerlink" href="#working-with-spectrumcollections" title="Permalink to this headline">¶</a></h1>
+<p>A spectrum collection is a way to keep a set of spectra data together and have
+the collection behave as if it were a single spectrum object. This means that
+it can be used in regular analysis functions to perform operations over entire
+sets of data.</p>
+<p>Currently, all <code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumCollection</span></code> items must be the same
+shape. No assumptions are made about the dispersion solutions, and users are
+encouraged to ensure their spectrum collections make sense either by resampling
+them beforehand, or being aware that they do not share the same dispersion
+solution.</p>
+<div class="code python highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.nddata</span> <span class="k">import</span> <span class="n">StdDevUncertainty</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">specutils</span> <span class="k">import</span> <span class="n">SpectrumCollection</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">specutils.wcs.wcs_wrapper</span> <span class="k">import</span> <span class="n">WCSWrapper</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flux</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;Jy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spectral_axis</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;AA&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wcs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">WCSWrapper</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">wcs</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">spectral_axis</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">uncertainty</span> <span class="o">=</span> <span class="n">StdDevUncertainty</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;Jy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">meta</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span> <span class="o">=</span> <span class="n">SpectrumCollection</span><span class="p">(</span>
+<span class="gp">... </span><span class="n">flux</span><span class="o">=</span><span class="n">flux</span><span class="p">,</span> <span class="n">spectral_axis</span><span class="o">=</span><span class="n">spectral_axis</span><span class="p">,</span> <span class="n">wcs</span><span class="o">=</span><span class="n">wcs</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">uncertainty</span><span class="o">=</span><span class="n">uncertainty</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(5,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">unit</span>
+<span class="go">Unit(&quot;Jy&quot;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(5, 10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">unit</span>
+<span class="go">Unit(&quot;Angstrom&quot;)</span>
+</pre></div>
+</div>
+<div class="section" id="collections-from-1d-spectra">
+<h2>Collections from 1D spectra<a class="headerlink" href="#collections-from-1d-spectra" title="Permalink to this headline">¶</a></h2>
+<p>It is also possible to create a <code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumCollection</span></code> from
+a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code>:</p>
+<div class="code python highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">specutils</span> <span class="k">import</span> <span class="n">Spectrum1D</span><span class="p">,</span> <span class="n">SpectrumCollection</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">spectral_axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Jy</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">uncertainty</span><span class="o">=</span><span class="n">StdDevUncertainty</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;Jy&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec1</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">spectral_axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Jy</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">uncertainty</span><span class="o">=</span><span class="n">StdDevUncertainty</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;Jy&#39;</span><span class="p">))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span> <span class="o">=</span> <span class="n">SpectrumCollection</span><span class="o">.</span><span class="n">from_spectra</span><span class="p">([</span><span class="n">spec</span><span class="p">,</span> <span class="n">spec1</span><span class="p">])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">unit</span>
+<span class="go">Unit(&quot;Jy&quot;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2, 50)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_coll</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">unit</span>
+<span class="go">Unit(&quot;Angstrom&quot;)</span>
+</pre></div>
+</div>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumCollection</span></code> objects can be treated just like
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> objects; calling a particular attribute on the
+object will return an array whose type depends on the type of the attribute in
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> object.</p>
+<div class="code python highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">spec1</span><span class="o">.</span><span class="n">flux</span><span class="p">))</span>
+<span class="go">&lt;class &#39;astropy.units.quantity.Quantity&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">spec_coll</span><span class="o">.</span><span class="n">flux</span><span class="p">))</span>
+<span class="go">&lt;class &#39;astropy.units.quantity.Quantity&#39;&gt;</span>
+</pre></div>
+</div>
+<p>The difference is their shape. The returned array from the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumCollection</span></code>
+object will have shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">M)</span></code> where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of input spectra
+and <code class="docutils literal notranslate"><span class="pre">M</span></code> is the length of the output dispersion grid.</p>
+<div class="code python highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">spec1</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(50,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">spec_coll</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(2, 50)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-specutils.spectra.spectrum_collection">
+<span id="reference-api"></span><h2>Reference/API<a class="headerlink" href="#module-specutils.spectra.spectrum_collection" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="api/specutils.spectra.spectrum_collection.SpectrumCollection.html#specutils.spectra.spectrum_collection.SpectrumCollection" title="specutils.spectra.spectrum_collection.SpectrumCollection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpectrumCollection</span></code></a>(flux[,&nbsp;spectral_axis,&nbsp;…])</td>
+<td>A class to represent a heterogeneous set of spectra that are the same length but have different spectral axes.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="class-inheritance-diagram">
+<h3>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h3>
+<object data="_images/inheritance-d4cec3c222bb3ff0ab6c3532d7a45482bc36c99d.svg" type="image/svg+xml">
+            <p class="warning">Inheritance diagram of specutils.spectra.spectrum_collection.SpectrumCollection</p></object>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Working With SpectrumCollections</a><ul>
+<li><a class="reference internal" href="#collections-from-1d-spectra">Collections from 1D spectra</a></li>
+<li><a class="reference internal" href="#module-specutils.spectra.spectrum_collection">Reference/API</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/spectrum_collection.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

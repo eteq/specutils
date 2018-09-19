@@ -1,0 +1,153 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>fit_generic_continuum &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="fit_lines" href="specutils.fitting.fit_lines.html" />
+    <link rel="prev" title="fit_continuum" href="specutils.fitting.fit_continuum.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="specutils.fitting.fit_lines.html" title="fit_lines">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="specutils.fitting.fit_continuum.html" title="fit_continuum">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../fitting.html" accesskey="U">Line/Spectrum Fitting</a> &#187;</li>
+      
+      <li>fit_generic_continuum</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fit-generic-continuum">
+<h1>fit_generic_continuum<a class="headerlink" href="#fit-generic-continuum" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="specutils.fitting.fit_generic_continuum">
+<code class="descclassname">specutils.fitting.</code><code class="descname">fit_generic_continuum</code><span class="sig-paren">(</span><em>spectrum</em>, <em>median_window=3</em>, <em>model=&lt;Chebyshev1D(3</em>, <em>c0=0.</em>, <em>c1=0.</em>, <em>c2=0.</em>, <em>c3=0.)&gt;</em>, <em>fitter=&lt;astropy.modeling.fitting.LevMarLSQFitter object&gt;</em>, <em>exclude_regions=None</em>, <em>weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/fitting/continuum.html#fit_generic_continuum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.fitting.fit_generic_continuum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic fitting of the continuum of an input spectrum. The input
+spectrum is smoothed using a median filter to remove the spikes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>spectrum</strong> : Spectrum1D</p>
+<blockquote>
+<div><p>The spectrum object overwhich the equivalent width will be calculated.</p>
+</div></blockquote>
+<p><strong>model</strong> : list of <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.modeling.Model.html#astropy.modeling.Model" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<blockquote>
+<div><p>The list of models that contain the initial guess.</p>
+</div></blockquote>
+<p><strong>exclude_regions</strong> : list of 2-tuples</p>
+<blockquote>
+<div><p>List of regions to exclude in the fitting. Passed through
+to the fitmodels routine.</p>
+</div></blockquote>
+<p><strong>weights</strong> : list  (NOT IMPLEMENTED YET)</p>
+<blockquote>
+<div><p>List of weights to define importance of fitting regions.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">continuum_model</p>
+<blockquote class="last">
+<div><p>Fitted continuum as a model of whatever class <code class="docutils literal notranslate"><span class="pre">model</span></code> provides.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li>Could add functionality to set the bounds in
+<code class="docutils literal notranslate"><span class="pre">model</span></code> if they are not set.</li>
+<li>The models in the list of <code class="docutils literal notranslate"><span class="pre">model</span></code> are added together and passed as a
+compound model to the <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.modeling.fitting.Fitter.html#astropy.modeling.fitting.Fitter" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Fitter</span></code></a> class instance.</li>
+</ul>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">fit_generic_continuum</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/specutils.fitting.fit_generic_continuum.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

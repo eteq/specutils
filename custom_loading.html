@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Loading and Defining Custom Spectral File Formats &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="data_loader" href="api/specutils.io.registers.data_loader.html" />
+    <link rel="prev" title="OneDSpectrumMixin" href="api/specutils.spectra.spectrum_mixin.OneDSpectrumMixin.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="api/specutils.io.registers.data_loader.html" title="data_loader">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="api/specutils.spectra.spectrum_mixin.OneDSpectrumMixin.html" title="OneDSpectrumMixin">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      
+      <li>Loading and Defining Custom Spectral File Formats</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="loading-and-defining-custom-spectral-file-formats">
+<h1>Loading and Defining Custom Spectral File Formats<a class="headerlink" href="#loading-and-defining-custom-spectral-file-formats" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="loading-from-a-file">
+<h2>Loading From a File<a class="headerlink" href="#loading-from-a-file" title="Permalink to this headline">¶</a></h2>
+<p>Specutils leverages the astropy io registry to provide an interface for conveniently
+loading data from files. To create a custom loader, the user must define it in
+a separate python file and place the file in their <code class="docutils literal notranslate"><span class="pre">~/.specutils</span></code> directory.</p>
+</div>
+<div class="section" id="loading-from-a-fits-file">
+<h2>Loading from a FITS File<a class="headerlink" href="#loading-from-a-fits-file" title="Permalink to this headline">¶</a></h2>
+<p>A spectra with a <em>Linear Wavelength Solution</em> can be read using the <code class="docutils literal notranslate"><span class="pre">read</span></code>
+method of the <code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> class to parse the file name and
+format</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">specutils</span> <span class="kn">import</span> <span class="n">Spectrum1D</span>
+
+<span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;path/to/folder&#39;</span><span class="p">,</span> <span class="s1">&#39;file_with_1d_wcs.fits&#39;</span><span class="p">)</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;wcs1d-fits&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> object that you can manipulate later.</p>
+<p>For instance, you could plot the spectrum.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;FITS file with 1D WCS&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Wavelength (Angstrom)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Flux (erg/cm2/s/A)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">flux</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="_images/read_1d.png" src="_images/read_1d.png" />
+</div>
+<div class="section" id="creating-a-custom-loader">
+<h2>Creating a Custom Loader<a class="headerlink" href="#creating-a-custom-loader" title="Permalink to this headline">¶</a></h2>
+<p>Defining a custom loader consists of importing the
+<a class="reference internal" href="api/specutils.io.registers.data_loader.html#specutils.io.registers.data_loader" title="specutils.io.registers.data_loader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_loader</span></code></a> decorator from specutils and attaching
+it to a function that knows how to parse the user’s data.  The return object
+of this function must be a <code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> object.</p>
+<p>Optionally, the user may define an identifier function. This function acts to
+ensure that the data file being loaded is compatible with the loader function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ~/.specutils/my_custom_loader.py</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span> <span class="nn">astropy.nddata</span> <span class="kn">import</span> <span class="n">StdDevUncertainty</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Unit</span>
+<span class="kn">from</span> <span class="nn">astropy.wcs</span> <span class="kn">import</span> <span class="n">WCS</span>
+
+<span class="kn">from</span> <span class="nn">specutils.io.registers</span> <span class="kn">import</span> <span class="n">data_loader</span>
+<span class="kn">from</span> <span class="nn">specutils</span> <span class="kn">import</span> <span class="n">Spectrum1D</span>
+
+<span class="c1"># Define an optional identifier. If made specific enough, this circumvents the</span>
+<span class="c1"># need to add ``format=&quot;my-format&quot;`` in the ``Spectrum1D.read`` call.</span>
+<span class="k">def</span> <span class="nf">identify_generic_fits</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.fits&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@data_loader</span><span class="p">(</span><span class="s2">&quot;my-format&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="n">identify_generic_fits</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">generic_fits</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_name</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdulist</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+
+        <span class="n">tab</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;header&#39;</span><span class="p">:</span> <span class="n">header</span><span class="p">}</span>
+        <span class="n">wcs</span> <span class="o">=</span> <span class="n">WCS</span><span class="p">(</span><span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+        <span class="n">uncertainty</span> <span class="o">=</span> <span class="n">StdDevUncertainty</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s2">&quot;err&quot;</span><span class="p">])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">Unit</span><span class="p">(</span><span class="s2">&quot;Jy&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">flux</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">wcs</span><span class="o">=</span><span class="n">wcs</span><span class="p">,</span> <span class="n">uncertainty</span><span class="o">=</span><span class="n">uncertainty</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After placing this python file in the user’s <code class="docutils literal notranslate"><span class="pre">~/.specutils</span></code> directory, it
+can be utilized by referencing its name in the <code class="docutils literal notranslate"><span class="pre">read</span></code> method of the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> class</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">specutils</span> <span class="kn">import</span> <span class="n">Spectrum1D</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;path/to/data&quot;</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s2">&quot;my-format&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-a-custom-writer">
+<h2>Creating a Custom Writer<a class="headerlink" href="#creating-a-custom-writer" title="Permalink to this headline">¶</a></h2>
+<p>Similar to creating a custom loader, a custom data writer may also be defined.
+This again will be done in a separate python file and placed in the user’s
+<code class="docutils literal notranslate"><span class="pre">~/.specutils</span></code> directory to be loaded into the astropy io registry.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ~/.spectacle/my_writer.py</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span> <span class="nn">specutils.io.registers</span> <span class="kn">import</span> <span class="n">custom_writer</span>
+
+
+<span class="nd">@custom_writer</span><span class="p">(</span><span class="s2">&quot;fits-writer&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">generic_fits</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">disp</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">dispersion</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">meta</span>
+
+    <span class="n">tab</span> <span class="o">=</span> <span class="n">Table</span><span class="p">([</span><span class="n">disp</span><span class="p">,</span> <span class="n">flux</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;dispersion&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">),</span> <span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span>
+
+    <span class="n">tab</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s2">&quot;fits&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The custom writer can be used by passing the name of the custom writer to the
+<code class="docutils literal notranslate"><span class="pre">format</span></code> argument of the <code class="docutils literal notranslate"><span class="pre">write</span></code> method on the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Jy</span><span class="p">,</span>
+                  <span class="n">spectral_axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">AA</span><span class="p">)</span>
+
+<span class="n">spec</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;my_output.fits&quot;</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s2">&quot;fits-writer&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-specutils.io.registers">
+<span id="reference-api"></span><h2>Reference/API<a class="headerlink" href="#module-specutils.io.registers" title="Permalink to this headline">¶</a></h2>
+<p>A module containing the mechanics of the specutils io registry.</p>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="api/specutils.io.registers.data_loader.html#specutils.io.registers.data_loader" title="specutils.io.registers.data_loader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_loader</span></code></a>(label[,&nbsp;identifier,&nbsp;dtype])</td>
+<td>Wraps a function that can be added to an <a class="reference external" href="http://docs.astropy.org/en/stable/io/registry.html#module-astropy.io.registry" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">registry</span></code></a> for custom file reading.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="api/specutils.io.registers.custom_writer.html#specutils.io.registers.custom_writer" title="specutils.io.registers.custom_writer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_writer</span></code></a>(label[,&nbsp;dtype])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Loading and Defining Custom Spectral File Formats</a><ul>
+<li><a class="reference internal" href="#loading-from-a-file">Loading From a File</a></li>
+<li><a class="reference internal" href="#loading-from-a-fits-file">Loading from a FITS File</a></li>
+<li><a class="reference internal" href="#creating-a-custom-loader">Creating a Custom Loader</a></li>
+<li><a class="reference internal" href="#creating-a-custom-writer">Creating a Custom Writer</a></li>
+<li><a class="reference internal" href="#module-specutils.io.registers">Reference/API</a><ul>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/custom_loading.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

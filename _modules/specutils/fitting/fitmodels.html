@@ -1,0 +1,602 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>specutils.fitting.fitmodels &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../../../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for specutils.fitting.fitmodels</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">from</span> <span class="nn">..spectra.spectrum1d</span> <span class="k">import</span> <span class="n">Spectrum1D</span>
+<span class="kn">from</span> <span class="nn">..manipulation.utils</span> <span class="k">import</span> <span class="n">excise_regions</span>
+<span class="kn">from</span> <span class="nn">astropy.modeling</span> <span class="k">import</span> <span class="n">fitting</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">models</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fit_lines&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="fit_lines"><a class="viewcode-back" href="../../../api/specutils.fitting.fit_lines.html#specutils.fitting.fit_lines">[docs]</a><span class="k">def</span> <span class="nf">fit_lines</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fitter</span><span class="o">=</span><span class="n">fitting</span><span class="o">.</span><span class="n">LevMarLSQFitter</span><span class="p">(),</span>
+              <span class="n">exclude_regions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit the input models to the spectrum. The parameter values of the</span>
+<span class="sd">    input models will be used as the initial conditions for the fit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : Spectrum1D</span>
+<span class="sd">        The spectrum object over which the equivalent width will be calculated.</span>
+
+<span class="sd">    model: `~astropy.modeling.Model` or list of `~astropy.modeling.Model`</span>
+<span class="sd">        The model or list of models that contain the initial guess.</span>
+
+<span class="sd">    exclude_regions : list of `~specutils.SpectralRegion`</span>
+<span class="sd">        List of regions to exclude in the fitting.</span>
+
+<span class="sd">    weights : list  (NOT IMPLEMENTED YET)</span>
+<span class="sd">        List of weights to define importance of fitting regions.</span>
+
+<span class="sd">    window : `~specutils.SpectralRegion` or list of `~specutils.SpectralRegion`</span>
+<span class="sd">        Regions of the spectrum to use in the fitting. If None, then the</span>
+<span class="sd">        whole spectrum will be used in the fitting.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    models : Compound model of `~astropy.modeling.Model`</span>
+<span class="sd">        A compound model of models with fitted parameters.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">       * Could add functionality to set the bounds in</span>
+<span class="sd">         ``model`` if they are not set.</span>
+<span class="sd">       * The models in the list of ``model`` are added</span>
+<span class="sd">          together and passed as a compound model to the</span>
+<span class="sd">          `~astropy.modeling.fitting.Fitter` class instance.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># If we are to exclude certain regions, then remove them.</span>
+    <span class="c1">#</span>
+
+    <span class="k">if</span> <span class="n">exclude_regions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">excise_regions</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">exclude_regions</span><span class="p">)</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Get the dispersion and flux to fit.</span>
+    <span class="c1">#</span>
+
+    <span class="n">dispersion</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">wavelength</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Make the model a list if not already</span>
+    <span class="c1">#</span>
+
+    <span class="n">single_model_in</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">single_model_in</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="p">]</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># If a single model is passed in then just do that.</span>
+    <span class="c1">#</span>
+    <span class="n">fitted_models</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">modeli</span><span class="p">,</span> <span class="n">model_guess</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Determine the window if it is not None.  There</span>
+        <span class="c1"># are several options here:</span>
+        <span class="c1">#   window = 4 * u.Angstrom -&gt; Quantity</span>
+        <span class="c1">#   window = (4*u.Angstrom, 6*u.Angstrom) -&gt; tuple</span>
+        <span class="c1">#   window = (4, 6)*u.Angstrom -&gt; Quantity</span>
+        <span class="c1">#</span>
+
+        <span class="c1">#</span>
+        <span class="c1">#  Determine the window if there is one</span>
+        <span class="c1">#</span>
+
+        <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">model_window</span> <span class="o">=</span> <span class="n">window</span><span class="p">[</span><span class="n">modeli</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model_window</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_window</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">fit_model</span> <span class="o">=</span> <span class="n">_fit_lines</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">model_guess</span><span class="p">,</span> <span class="n">fitter</span><span class="p">,</span>
+                               <span class="n">exclude_regions</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">model_window</span><span class="p">)</span>
+
+        <span class="n">fitted_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fit_model</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">single_model_in</span><span class="p">:</span>
+        <span class="n">fitted_models</span> <span class="o">=</span> <span class="n">fitted_models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">fitted_models</span></div>
+
+
+<span class="k">def</span> <span class="nf">_fit_lines</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fitter</span><span class="o">=</span><span class="n">fitting</span><span class="o">.</span><span class="n">LevMarLSQFitter</span><span class="p">(),</span>
+               <span class="n">exclude_regions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit the input model (initial conditions) to the spectrum.  Output will be</span>
+<span class="sd">    the same model with the parameters set based on the fitting.</span>
+
+<span class="sd">    spectrum, model -&gt; model</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : Spectrum1D</span>
+<span class="sd">        The spectrum object over which the equivalent width will be calculated.</span>
+
+<span class="sd">    model: `~astropy.modeling.Model`</span>
+<span class="sd">        The model or that contain the initial guess.</span>
+
+<span class="sd">    exclude_regions : list of `~specutils.SpectralRegion`</span>
+<span class="sd">        List of regions to exclude in the fitting.</span>
+
+<span class="sd">    weights : list  (NOT IMPLEMENTED YET)</span>
+<span class="sd">        List of weights to define importance of fitting regions.</span>
+
+<span class="sd">    window : `~specutils.SpectralRegion` or list of `~specutils.SpectralRegion`</span>
+<span class="sd">        Regions of the spectrum to use in the fitting. If None, then the</span>
+<span class="sd">        whole spectrum will be used in the fitting.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    model : Compound model of `~astropy.modeling.Model`</span>
+<span class="sd">        A compound model of models with fitted parameters.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">       * Could add functionality to set the bounds in ``model`` if they are not set.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Weights are not yet implemented.&#39;</span><span class="p">)</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># If we are to exclude certain regions, then remove them.</span>
+    <span class="c1">#</span>
+
+    <span class="k">if</span> <span class="n">exclude_regions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">excise_regions</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">exclude_regions</span><span class="p">)</span>
+
+    <span class="n">dispersion</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Determine the window if it is not None.  There</span>
+    <span class="c1"># are several options here:</span>
+    <span class="c1">#   window = 4 * u.Angstrom -&gt; Quantity</span>
+    <span class="c1">#   window = (4*u.Angstrom, 6*u.Angstrom) -&gt; tuple</span>
+    <span class="c1">#   window = (4, 6)*u.Angstrom -&gt; Quantity</span>
+    <span class="c1">#</span>
+
+    <span class="c1">#</span>
+    <span class="c1">#  Determine the window if there is one</span>
+    <span class="c1">#</span>
+
+    <span class="c1"># In this case the window defines the area around the center of each model</span>
+    <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">mean</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span> <span class="o">&gt;=</span> <span class="n">center</span><span class="o">-</span><span class="n">window</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span> <span class="o">&lt;</span> <span class="n">center</span><span class="o">+</span><span class="n">window</span><span class="p">))</span>
+
+        <span class="n">dispersion</span> <span class="o">=</span> <span class="n">dispersion</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+
+    <span class="c1"># In this case the window is the start and end points of where we should fit</span>
+    <span class="k">elif</span> <span class="n">window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">((</span><span class="n">dispersion</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dispersion</span> <span class="o">&lt;</span> <span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="n">dispersion</span> <span class="o">=</span> <span class="n">dispersion</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Compound models with units can not be fit.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Convert the model initial guess to the spectral</span>
+    <span class="c1"># units and then remove the units</span>
+    <span class="c1">#</span>
+
+    <span class="n">model_unitless</span><span class="p">,</span> <span class="n">dispersion_unitless</span><span class="p">,</span> <span class="n">flux_unitless</span> <span class="o">=</span> <span class="n">_strip_units_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">)</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Do the fitting of spectrum to the model.</span>
+    <span class="c1">#</span>
+
+    <span class="n">fit_model_unitless</span> <span class="o">=</span> <span class="n">fitter</span><span class="p">(</span><span class="n">model_unitless</span><span class="p">,</span> <span class="n">dispersion_unitless</span><span class="p">,</span> <span class="n">flux_unitless</span><span class="p">)</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Now add the units back onto the model....</span>
+    <span class="c1">#</span>
+
+    <span class="n">fit_model</span> <span class="o">=</span> <span class="n">_add_units_to_model</span><span class="p">(</span><span class="n">fit_model_unitless</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fit_model</span>
+
+
+<span class="k">def</span> <span class="nf">_strip_units_from_model</span><span class="p">(</span><span class="n">model_in</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method strips the units from the model, so the result can</span>
+<span class="sd">    be passed to the fitting routine. This is necessary as CoumpoundModel</span>
+<span class="sd">    with units does not work in the fitters.</span>
+
+<span class="sd">    Note:  When CompoundModel with units works in the fitters this method</span>
+<span class="sd">           can be removed.</span>
+
+<span class="sd">    Note: This assumes there are two types of models, those that are</span>
+<span class="sd">          based on `~astropy.modeling.models.PolynomialModel` and therefore</span>
+<span class="sd">          require the ``degree`` parameter when instantiating the class, and</span>
+<span class="sd">          &quot;everything else&quot; that does not require an &quot;extra&quot; parameter for</span>
+<span class="sd">          class instantiation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Get the dispersion and flux information from the spectrum</span>
+    <span class="c1">#</span>
+
+    <span class="n">dispersion</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span>
+    <span class="n">dispersion_unit</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span>
+
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span>
+    <span class="n">flux_unit</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">unit</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Determine if a compound model</span>
+    <span class="c1">#</span>
+
+    <span class="n">compound_model</span> <span class="o">=</span> <span class="n">model_in</span><span class="o">.</span><span class="n">n_submodels</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">compound_model</span><span class="p">:</span>
+        <span class="c1"># For this we are going to just make it a list so that we</span>
+        <span class="c1"># can use the looping structure below.</span>
+        <span class="n">model_in</span> <span class="o">=</span> <span class="p">[</span><span class="n">model_in</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># If it is a compound model then we are going to create the RPN</span>
+        <span class="c1"># representation of it which is a list that contains either astropy</span>
+        <span class="c1"># models or string representations of operators (e.g., &#39;+&#39; or &#39;*&#39;).</span>
+        <span class="n">model_in</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">model_in</span><span class="o">.</span><span class="n">_tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">()]</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Run through each model in the list or compound model</span>
+    <span class="c1">#</span>
+
+    <span class="n">model_out_stack</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="n">model_in</span><span class="p">:</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># If it is an operator put onto the stack and move on...</span>
+        <span class="c1">#</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_model</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+            <span class="n">model_out_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_model</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Make a new instance of the class.</span>
+        <span class="c1">#</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_model</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">PolynomialModel</span><span class="p">):</span>
+            <span class="n">new_sub_model</span> <span class="o">=</span> <span class="n">sub_model</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">sub_model</span><span class="o">.</span><span class="n">degree</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_sub_model</span> <span class="o">=</span> <span class="n">sub_model</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Now for each parameter in the model determine if a dispersion or</span>
+        <span class="c1"># flux type of unit, then convert to spectrum units and then get the value.</span>
+        <span class="c1">#</span>
+
+        <span class="k">for</span> <span class="n">pn</span> <span class="ow">in</span> <span class="n">new_sub_model</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
+
+            <span class="c1"># This could be a Quantity or Parameter</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_model</span><span class="p">,</span> <span class="n">pn</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;quantity&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_model</span><span class="p">,</span> <span class="n">pn</span><span class="p">)</span><span class="o">.</span><span class="n">quantity</span>
+
+                <span class="c1">#</span>
+                <span class="c1"># Convert the quantity to the spectrum&#39;s units, and then we will use</span>
+                <span class="c1"># the *value* of it in the new unitless-model.</span>
+                <span class="c1">#</span>
+
+                <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">dispersion_unit</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral</span><span class="p">()):</span>
+                    <span class="n">quantity</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dispersion_unit</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+
+                <span class="k">elif</span> <span class="n">q</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral_density</span><span class="p">(</span><span class="n">dispersion</span><span class="p">)):</span>
+                    <span class="n">quantity</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral_density</span><span class="p">(</span><span class="n">dispersion</span><span class="p">))</span>
+
+                <span class="c1"># The value must be a quantity in order to use setattr (below)</span>
+                <span class="c1"># as the setter requires a Quantity on the rhs if the parameter</span>
+                <span class="c1"># is already a value.</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">quantity</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_model</span><span class="p">,</span> <span class="n">pn</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+            <span class="c1">#</span>
+            <span class="c1"># Add this information for the parameter name into the</span>
+            <span class="c1"># new sub model.</span>
+            <span class="c1">#</span>
+
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">new_sub_model</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="c1"># The new model now has unitless information in it but has</span>
+        <span class="c1"># been converted to spectral unit scale.</span>
+        <span class="n">model_out_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_sub_model</span><span class="p">)</span>
+
+    <span class="c1"># If a compound model we need to re-create it, otherwise</span>
+    <span class="c1"># it is a single model and we just get the first one (as</span>
+    <span class="c1"># there is only one).</span>
+    <span class="k">if</span> <span class="n">compound_model</span><span class="p">:</span>
+        <span class="n">model_out</span> <span class="o">=</span> <span class="n">_combine_postfix</span><span class="p">(</span><span class="n">model_out_stack</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model_out</span> <span class="o">=</span> <span class="n">model_out_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">model_out</span><span class="p">,</span> <span class="n">dispersion</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">flux</span><span class="o">.</span><span class="n">value</span>
+
+
+<span class="k">def</span> <span class="nf">_add_units_to_model</span><span class="p">(</span><span class="n">model_in</span><span class="p">,</span> <span class="n">model_orig</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method adds the units to the model based on the units of the</span>
+<span class="sd">    model passed in.  This is necessary as CoumpoundModel</span>
+<span class="sd">    with units does not work in the fitters.</span>
+
+<span class="sd">    Note:  When CompoundModel with units works in the fitters this method</span>
+<span class="sd">           can be removed.</span>
+
+<span class="sd">    Note: This assumes there are two types of models, those that are</span>
+<span class="sd">          based on `~astropy.modeling.models.PolynomialModel` and therefore</span>
+<span class="sd">          require the ``degree`` parameter when instantiating the class, and</span>
+<span class="sd">          &quot;everything else&quot; that does not require an &quot;extra&quot; parameter for</span>
+<span class="sd">          class instantiation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dispersion</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># If not a compound model, then make a single element</span>
+    <span class="c1"># list so we can use the for loop below.</span>
+    <span class="c1">#</span>
+
+    <span class="n">compound_model</span> <span class="o">=</span> <span class="n">model_in</span><span class="o">.</span><span class="n">n_submodels</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">compound_model</span><span class="p">:</span>
+        <span class="n">model_in_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">model_in</span><span class="p">]</span>
+        <span class="n">model_orig_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">model_orig</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">compound_model_in</span> <span class="o">=</span> <span class="n">model_in</span>
+
+        <span class="n">model_in_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">model_in</span><span class="o">.</span><span class="n">_tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">()]</span>
+        <span class="n">model_orig_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">model_orig</span><span class="o">.</span><span class="n">_tree</span><span class="o">.</span><span class="n">traverse_postorder</span><span class="p">()]</span>
+
+    <span class="n">model_out_stack</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">model_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># For each model in the list we will convert the values back to</span>
+    <span class="c1"># the original (sub-)model units.</span>
+    <span class="c1">#</span>
+
+    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">m_in</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model_in_list</span><span class="p">):</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># If an operator (ie not Model) then we&#39;ll just add</span>
+        <span class="c1"># to the stack and evaluate at the end.</span>
+        <span class="c1">#</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_in</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+            <span class="n">model_out_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m_in</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Get the corresponding *original* sub-model that</span>
+        <span class="c1"># will match the current sub-model. From this we will</span>
+        <span class="c1"># grab the units to apply.</span>
+        <span class="c1">#</span>
+
+        <span class="n">m_orig</span> <span class="o">=</span> <span class="n">model_orig_list</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Make the new sub-model.</span>
+        <span class="c1">#</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_in</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">PolynomialModel</span><span class="p">):</span>
+            <span class="n">new_sub_model</span> <span class="o">=</span> <span class="n">m_in</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">m_in</span><span class="o">.</span><span class="n">degree</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_sub_model</span> <span class="o">=</span> <span class="n">m_in</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Convert the model values from the spectrum units back to the</span>
+        <span class="c1"># original model units.</span>
+        <span class="c1">#</span>
+
+        <span class="k">for</span> <span class="n">pi</span><span class="p">,</span> <span class="n">pn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">new_sub_model</span><span class="o">.</span><span class="n">param_names</span><span class="p">):</span>
+
+            <span class="c1">#</span>
+            <span class="c1"># Get the parameter from the original model and unit-less model.</span>
+            <span class="c1">#</span>
+
+            <span class="n">m_orig_param</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m_orig</span><span class="p">,</span> <span class="n">pn</span><span class="p">)</span>
+            <span class="n">m_in_param</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m_in</span><span class="p">,</span> <span class="n">pn</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m_orig_param</span><span class="p">,</span> <span class="s1">&#39;quantity&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">m_orig_param</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="n">m_orig_param_quantity</span> <span class="o">=</span> <span class="n">m_orig_param</span><span class="o">.</span><span class="n">quantity</span>
+
+                <span class="c1">#</span>
+                <span class="c1"># If a spectral dispersion type of unit...</span>
+                <span class="c1">#</span>
+                <span class="k">if</span> <span class="n">m_orig_param_quantity</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span>
+                                                            <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral</span><span class="p">()):</span>
+
+                    <span class="c1"># If it is a compound model, then we need to get the value from the</span>
+                    <span class="c1"># actual compound model as the tree is not updated in the fitting</span>
+                    <span class="k">if</span> <span class="n">compound_model</span><span class="p">:</span>
+                        <span class="n">current_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">compound_model_in</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pn</span><span class="p">,</span> <span class="n">model_index</span><span class="p">))</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span>\
+                                        <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">current_value</span> <span class="o">=</span> <span class="n">m_in_param</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span>
+
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">current_value</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">m_orig_param_quantity</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+
+                <span class="c1">#</span>
+                <span class="c1"># If a spectral density type of unit...</span>
+                <span class="c1">#</span>
+                <span class="k">elif</span> <span class="n">m_orig_param_quantity</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span>
+                                                              <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral_density</span><span class="p">(</span><span class="n">dispersion</span><span class="p">)):</span>
+                    <span class="c1"># If it is a compound model, then we need to get the value from the</span>
+                    <span class="c1"># actual compound model as the tree is not updated in the fitting</span>
+                    <span class="k">if</span> <span class="n">compound_model</span><span class="p">:</span>
+                        <span class="n">current_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">compound_model_in</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pn</span><span class="p">,</span> <span class="n">model_index</span><span class="p">))</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span>\
+                                        <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">unit</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">current_value</span> <span class="o">=</span> <span class="n">m_in_param</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">unit</span>
+
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">current_value</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">m_orig_param_quantity</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span>
+                                         <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">equivalencies</span><span class="o">.</span><span class="n">spectral_density</span><span class="p">(</span><span class="n">dispersion</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m_in</span><span class="p">,</span> <span class="n">pn</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+            <span class="c1">#</span>
+            <span class="c1"># Set the parameter value into the new sub-model.</span>
+            <span class="c1">#</span>
+
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">new_sub_model</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Add the new unit-filled model onto the stack.</span>
+        <span class="c1">#</span>
+
+        <span class="n">model_out_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_sub_model</span><span class="p">)</span>
+
+        <span class="n">model_index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1">#</span>
+    <span class="c1"># Create the output model which is either the evaulation</span>
+    <span class="c1"># of the RPN representation of the model (if a compound model)</span>
+    <span class="c1"># or just the first element if a non-compound model.</span>
+    <span class="c1">#</span>
+
+    <span class="k">if</span> <span class="n">compound_model</span><span class="p">:</span>
+        <span class="n">model_out</span> <span class="o">=</span> <span class="n">_combine_postfix</span><span class="p">(</span><span class="n">model_out_stack</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model_out</span> <span class="o">=</span> <span class="n">model_out_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">model_out</span>
+
+
+<span class="k">def</span> <span class="nf">_combine_postfix</span><span class="p">(</span><span class="n">equation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a Python list in post order (RPN) of an equation, convert/apply the operations to evaluate.</span>
+<span class="sd">    The list order is the same as what is output from ``model._tree.traverse_postorder()``.</span>
+
+<span class="sd">    Structure modified from https://codereview.stackexchange.com/questions/79795/reverse-polish-notation-calculator-in-python</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ops</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+           <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+           <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span>
+           <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">truediv</span><span class="p">,</span>
+           <span class="s1">&#39;^&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">pow</span><span class="p">,</span>
+           <span class="s1">&#39;**&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">pow</span><span class="p">}</span>
+
+    <span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">equation</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error: insufficient values in expression&#39;</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">n1</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">n2</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

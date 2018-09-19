@@ -1,0 +1,318 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SpectrumCollection &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Spectral Regions" href="../spectral_regions.html" />
+    <link rel="prev" title="Working With SpectrumCollections" href="../spectrum_collection.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../spectral_regions.html" title="Spectral Regions">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../spectrum_collection.html" title="Working With SpectrumCollections">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../spectrum_collection.html" accesskey="U">Working With SpectrumCollections</a> &#187;</li>
+      
+      <li>SpectrumCollection</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spectrumcollection">
+<h1>SpectrumCollection<a class="headerlink" href="#spectrumcollection" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection">
+<em class="property">class </em><code class="descclassname">specutils.spectra.spectrum_collection.</code><code class="descname">SpectrumCollection</code><span class="sig-paren">(</span><em>flux</em>, <em>spectral_axis=None</em>, <em>wcs=None</em>, <em>uncertainty=None</em>, <em>mask=None</em>, <em>meta=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/spectra/spectrum_collection.html#SpectrumCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A class to represent a heterogeneous set of spectra that are the same length
+but have different spectral axes. Spectra that meet this requirement can be
+stored as multidimensional arrays, and thus can have operations performed
+on them faster than if they are treated as individual
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> objects.</p>
+<p>The attributes on this class uses the same names and conventions as
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code>, allowing some operations to work the same.
+Where this does not work, the user can use standard indexing notation to
+access individual <code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>flux</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></p>
+<blockquote>
+<div><p>The flux data. The trailing dimension should be the spectral dimension.</p>
+</div></blockquote>
+<p><strong>spectral_axis</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></p>
+<blockquote>
+<div><p>The spectral axes of the spectra (e.g., wavelength).  Must match the
+dimensionality of <code class="docutils literal notranslate"><span class="pre">flux</span></code>.</p>
+</div></blockquote>
+<p><strong>wcs</strong> : wcs object or None</p>
+<blockquote>
+<div><p>A wcs object (if available) for the collection of spectra.  The object
+must follow standard indexing rules to get a sub-wcs if it is provided.</p>
+</div></blockquote>
+<p><strong>uncertainty</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.nddata.NDUncertainty.html#astropy.nddata.NDUncertainty" title="(in Astropy v3.0.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">astropy.nddata.NDUncertainty</span></code></a> or ndarray</p>
+<blockquote>
+<div><p>The uncertainties associated with each spectrum of the collection. In
+the case that only an n-dimensional quantity or ndaray is provided,
+the uncertainties are assumed to be standard deviations. Must match the
+dimensionality of <code class="docutils literal notranslate"><span class="pre">flux</span></code>.</p>
+</div></blockquote>
+<p><strong>mask</strong> : ndarray or None</p>
+<blockquote>
+<div><p>The n-dimensional mask information associated with each spectrum. If
+present, must match the dimensionality of <code class="docutils literal notranslate"><span class="pre">flux</span></code>.</p>
+</div></blockquote>
+<p><strong>meta</strong> : list</p>
+<blockquote class="last">
+<div><p>The list of dictionaries containing meta data to be associated with
+each spectrum in the collection.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.energy" title="specutils.spectra.spectrum_collection.SpectrumCollection.energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">energy</span></code></a></td>
+<td>The spectral axis as an energy <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> (in eV).</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.flux" title="specutils.spectra.spectrum_collection.SpectrumCollection.flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux</span></code></a></td>
+<td>The flux in the spectrum as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.frequency" title="specutils.spectra.spectrum_collection.SpectrumCollection.frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequency</span></code></a></td>
+<td>The spectral axis as a frequency <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> (in GHz).</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.mask" title="specutils.spectra.spectrum_collection.SpectrumCollection.mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask</span></code></a></td>
+<td>The mask array for the spectrum.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.meta" title="specutils.spectra.spectrum_collection.SpectrumCollection.meta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">meta</span></code></a></td>
+<td>A dictionary of metadata for theis spectrum collection, or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.ndim" title="specutils.spectra.spectrum_collection.SpectrumCollection.ndim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndim</span></code></a></td>
+<td>The dimensionality of the collection.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.nspectral" title="specutils.spectra.spectrum_collection.SpectrumCollection.nspectral"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nspectral</span></code></a></td>
+<td>The length of the spectral dimension.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.shape" title="specutils.spectra.spectrum_collection.SpectrumCollection.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a></td>
+<td>The shape of the collection.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.spectral_axis" title="specutils.spectra.spectrum_collection.SpectrumCollection.spectral_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spectral_axis</span></code></a></td>
+<td>The spectral axes as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.uncertainty" title="specutils.spectra.spectrum_collection.SpectrumCollection.uncertainty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uncertainty</span></code></a></td>
+<td>The uncertainty in the spectrum as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.wavelength" title="specutils.spectra.spectrum_collection.SpectrumCollection.wavelength"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wavelength</span></code></a></td>
+<td>The spectral axis as a wavelength <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> (in Angstroms).</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.wcs" title="specutils.spectra.spectrum_collection.SpectrumCollection.wcs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wcs</span></code></a></td>
+<td>The WCS’s as an object array</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_collection.SpectrumCollection.from_spectra" title="specutils.spectra.spectrum_collection.SpectrumCollection.from_spectra"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_spectra</span></code></a>(spectra)</td>
+<td>Create a spectrum collection from a set of individual <code class="xref py py-class docutils literal notranslate"><span class="pre">specutils.Spectrum1D</span></code> objects.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.energy">
+<code class="descname">energy</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The spectral axis as an energy <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> (in eV).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.flux">
+<code class="descname">flux</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>The flux in the spectrum as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.frequency">
+<code class="descname">frequency</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>The spectral axis as a frequency <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> (in GHz).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.mask">
+<code class="descname">mask</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mask array for the spectrum.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.meta">
+<code class="descname">meta</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of metadata for theis spectrum collection, or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.ndim">
+<code class="descname">ndim</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dimensionality of the collection. This is <em>not</em> the same as
+the dimensionality of the flux et al., because the trailing (spectral)
+dimension is not included here.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.nspectral">
+<code class="descname">nspectral</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.nspectral" title="Permalink to this definition">¶</a></dt>
+<dd><p>The length of the spectral dimension.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.shape">
+<code class="descname">shape</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shape of the collection. This is <em>not</em> the same as
+the shape of the flux et al., because the trailing (spectral)
+dimension is not included here.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.spectral_axis">
+<code class="descname">spectral_axis</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.spectral_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>The spectral axes as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.uncertainty">
+<code class="descname">uncertainty</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.uncertainty" title="Permalink to this definition">¶</a></dt>
+<dd><p>The uncertainty in the spectrum as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.wavelength">
+<code class="descname">wavelength</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.wavelength" title="Permalink to this definition">¶</a></dt>
+<dd><p>The spectral axis as a wavelength <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> (in
+Angstroms).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.wcs">
+<code class="descname">wcs</code><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.wcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The WCS’s as an object array</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="classmethod">
+<dt id="specutils.spectra.spectrum_collection.SpectrumCollection.from_spectra">
+<em class="property">classmethod </em><code class="descname">from_spectra</code><span class="sig-paren">(</span><em>spectra</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/spectra/spectrum_collection.html#SpectrumCollection.from_spectra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum_collection.SpectrumCollection.from_spectra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a spectrum collection from a set of individual
+<code class="xref py py-class docutils literal notranslate"><span class="pre">specutils.Spectrum1D</span></code> objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>spectra</strong> : list, ndarray</p>
+<blockquote class="last">
+<div><p>A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Spectrum1D</span></code> objects to be held in the
+collection.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">SpectrumCollection</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/specutils.spectra.spectrum_collection.SpectrumCollection.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

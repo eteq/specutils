@@ -1,0 +1,6 @@
+median_smooth
+=============
+
+.. currentmodule:: specutils.manipulation
+
+.. autofunction:: median_smooth

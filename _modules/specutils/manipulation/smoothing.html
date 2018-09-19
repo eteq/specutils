@@ -1,0 +1,290 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>specutils.manipulation.smoothing &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../../../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for specutils.manipulation.smoothing</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">convolution</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">medfilt</span>
+
+<span class="kn">from</span> <span class="nn">..spectra</span> <span class="k">import</span> <span class="n">Spectrum1D</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;convolution_smooth&#39;</span><span class="p">,</span> <span class="s1">&#39;box_smooth&#39;</span><span class="p">,</span> <span class="s1">&#39;gaussian_smooth&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;trapezoid_smooth&#39;</span><span class="p">,</span> <span class="s1">&#39;median_smooth&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="convolution_smooth"><a class="viewcode-back" href="../../../api/specutils.manipulation.convolution_smooth.html#specutils.manipulation.convolution_smooth">[docs]</a><span class="k">def</span> <span class="nf">convolution_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a convolution based smoothing to the spectrum. The kernel must be one</span>
+<span class="sd">    of the 1D kernels defined in `astropy.convolution`.</span>
+
+<span class="sd">    This method can be used along but also is used by other specific methods below.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        The `~specutils.Spectrum1D` object to which the smoothing will be applied.</span>
+<span class="sd">    kernel : `astropy.convolution.Kernel1D` subclass or array.</span>
+<span class="sd">        The convolution based smoothing kernel - anything that `astropy.convolution.convolve` accepts.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        Output `~specutils.Spectrum1D` which is copy of the one passed in with the updated flux.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">       In the case that ``spectrum`` and ``kernel`` are not the correct types.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parameter checks</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">Spectrum1D</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The spectrum parameter must be a Spectrum1D object&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get the flux of the input spectrum</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span>
+
+    <span class="c1"># Smooth based on the input kernel</span>
+    <span class="n">smoothed_flux</span> <span class="o">=</span> <span class="n">convolution</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+
+    <span class="c1"># Return a new object with the smoothed flux.</span>
+    <span class="k">return</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">flux</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">smoothed_flux</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">unit</span><span class="p">),</span>
+                      <span class="n">spectral_axis</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">,</span>
+                                               <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis_unit</span><span class="p">),</span>
+                      <span class="n">wcs</span><span class="o">=</span><span class="n">spectrum</span><span class="o">.</span><span class="n">wcs</span><span class="p">,</span>
+                      <span class="n">velocity_convention</span><span class="o">=</span><span class="n">spectrum</span><span class="o">.</span><span class="n">velocity_convention</span><span class="p">,</span>
+                      <span class="n">rest_value</span><span class="o">=</span><span class="n">spectrum</span><span class="o">.</span><span class="n">rest_value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="box_smooth"><a class="viewcode-back" href="../../../api/specutils.manipulation.box_smooth.html#specutils.manipulation.box_smooth">[docs]</a><span class="k">def</span> <span class="nf">box_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Smooth a `~specutils.Spectrum1D` instance based on a `astropy.convolution.Box1DKernel` kernel.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        The spectrum object to which the smoothing will be applied.</span>
+<span class="sd">    width : number</span>
+<span class="sd">        The width of the kernel, in pixels, as defined in `astropy.convolution.Box1DKernel`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        Output `~specutils.Spectrum1D` which a copy of the one passed in with the updated flux.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">       In the case that ``width`` is not the correct type or value.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parameter checks</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The width parameter, </span><span class="si">{}</span><span class="s1">, must be a number greater than 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">width</span><span class="p">))</span>
+
+    <span class="c1"># Create the gaussian kernel</span>
+    <span class="n">box1d_kernel</span> <span class="o">=</span> <span class="n">convolution</span><span class="o">.</span><span class="n">Box1DKernel</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+
+    <span class="c1"># Call and return the convolution smoothing.</span>
+    <span class="k">return</span> <span class="n">convolution_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">box1d_kernel</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gaussian_smooth"><a class="viewcode-back" href="../../../api/specutils.manipulation.gaussian_smooth.html#specutils.manipulation.gaussian_smooth">[docs]</a><span class="k">def</span> <span class="nf">gaussian_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">stddev</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Smooth a `~specutils.Spectrum1D` instance based on a `astropy.convolution.Gaussian1DKernel`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        The spectrum object to which the smoothing will be applied.</span>
+<span class="sd">    stddev : number</span>
+<span class="sd">        The stddev of the kernel, in pixels, as defined in `astropy.convolution.Gaussian1DKernel`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        Output `~specutils.Spectrum1D` which is copy of the one passed in with the updated flux.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">       In the case that ``stddev`` is not the correct type or value.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parameter checks</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stddev</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">stddev</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The stddev parameter, </span><span class="si">{}</span><span class="s1">, must be a number greater than 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">stddev</span><span class="p">))</span>
+
+    <span class="c1"># Create the gaussian kernel</span>
+    <span class="n">gaussian_kernel</span> <span class="o">=</span> <span class="n">convolution</span><span class="o">.</span><span class="n">Gaussian1DKernel</span><span class="p">(</span><span class="n">stddev</span><span class="p">)</span>
+
+    <span class="c1"># Call and return the convolution smoothing.</span>
+    <span class="k">return</span> <span class="n">convolution_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">gaussian_kernel</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="trapezoid_smooth"><a class="viewcode-back" href="../../../api/specutils.manipulation.trapezoid_smooth.html#specutils.manipulation.trapezoid_smooth">[docs]</a><span class="k">def</span> <span class="nf">trapezoid_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Smoothing based on a `astropy.convolution.Trapezoid1DKernel` kernel.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        The `~specutils.Spectrum1D` object to which the smoothing will be applied.</span>
+<span class="sd">    width : number</span>
+<span class="sd">        The width of the kernel, in pixels, as defined in `astropy.convolution.Trapezoid1DKernel`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        Output `~specutils.Spectrum1D` which is copy of the one passed in with the updated flux.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">       In the case that ``width`` is not the correct type or value.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parameter checks</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The stddev parameter, </span><span class="si">{}</span><span class="s1">, must be a number greater than 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">width</span><span class="p">))</span>
+
+    <span class="c1"># Create the gaussian kernel</span>
+    <span class="n">trapezoid_kernel</span> <span class="o">=</span> <span class="n">convolution</span><span class="o">.</span><span class="n">Trapezoid1DKernel</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+
+    <span class="c1"># Call and return the convolution smoothing.</span>
+    <span class="k">return</span> <span class="n">convolution_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">trapezoid_kernel</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="median_smooth"><a class="viewcode-back" href="../../../api/specutils.manipulation.median_smooth.html#specutils.manipulation.median_smooth">[docs]</a><span class="k">def</span> <span class="nf">median_smooth</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Smoothing based on a median filter. The median filter smoothing</span>
+<span class="sd">    is implemented using the `scipy.signal.medfilt` function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        The `~specutils.Spectrum1D` object to which the smoothing will be applied.</span>
+<span class="sd">    width : number</span>
+<span class="sd">        The width of the median filter in pixels.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spectrum : `~specutils.Spectrum1D`</span>
+<span class="sd">        Output `~specutils.Spectrum1D` which is copy of the one passed in with the updated flux.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">       In the case that ``spectrum`` or ``width`` are not the correct type or value.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parameter checks</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">Spectrum1D</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The spectrum parameter must be a Spectrum1D object&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The stddev parameter, </span><span class="si">{}</span><span class="s1">, must be a number greater than 0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">width</span><span class="p">))</span>
+
+    <span class="c1"># Get the flux of the input spectrum</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">flux</span>
+
+    <span class="c1"># Smooth based on the input kernel</span>
+    <span class="n">smoothed_flux</span> <span class="o">=</span> <span class="n">medfilt</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+
+    <span class="c1"># Return a new object with the smoothed flux.</span>
+    <span class="k">return</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">flux</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">smoothed_flux</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">unit</span><span class="p">),</span>
+                      <span class="n">spectral_axis</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">,</span>
+                                               <span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis_unit</span><span class="p">),</span>
+                      <span class="n">wcs</span><span class="o">=</span><span class="n">spectrum</span><span class="o">.</span><span class="n">wcs</span><span class="p">,</span>
+                      <span class="n">velocity_convention</span><span class="o">=</span><span class="n">spectrum</span><span class="o">.</span><span class="n">velocity_convention</span><span class="p">,</span>
+                      <span class="n">rest_value</span><span class="o">=</span><span class="n">spectrum</span><span class="o">.</span><span class="n">rest_value</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

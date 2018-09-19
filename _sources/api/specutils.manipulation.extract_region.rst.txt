@@ -1,0 +1,6 @@
+extract_region
+==============
+
+.. currentmodule:: specutils.manipulation
+
+.. autofunction:: extract_region

@@ -1,0 +1,37 @@
+SpectralRegion
+==============
+
+.. currentmodule:: specutils.spectra.spectral_region
+
+.. autoclass:: SpectralRegion
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SpectralRegion.bounds
+      ~SpectralRegion.lower
+      ~SpectralRegion.subregions
+      ~SpectralRegion.upper
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SpectralRegion.from_center
+      ~SpectralRegion.invert
+      ~SpectralRegion.invert_from_spectrum
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: bounds
+   .. autoattribute:: lower
+   .. autoattribute:: subregions
+   .. autoattribute:: upper
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_center
+   .. automethod:: invert
+   .. automethod:: invert_from_spectrum

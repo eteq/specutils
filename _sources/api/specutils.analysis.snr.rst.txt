@@ -1,0 +1,6 @@
+snr
+===
+
+.. currentmodule:: specutils.analysis
+
+.. autofunction:: snr

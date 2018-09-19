@@ -1,0 +1,6 @@
+fit_lines
+=========
+
+.. currentmodule:: specutils.fitting
+
+.. autofunction:: fit_lines

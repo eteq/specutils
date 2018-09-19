@@ -1,0 +1,6 @@
+centroid
+========
+
+.. currentmodule:: specutils.analysis
+
+.. autofunction:: centroid

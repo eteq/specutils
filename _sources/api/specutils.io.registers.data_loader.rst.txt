@@ -1,0 +1,6 @@
+data_loader
+===========
+
+.. currentmodule:: specutils.io.registers
+
+.. autofunction:: data_loader

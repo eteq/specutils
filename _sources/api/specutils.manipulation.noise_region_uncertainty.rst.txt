@@ -1,0 +1,6 @@
+noise_region_uncertainty
+========================
+
+.. currentmodule:: specutils.manipulation
+
+.. autofunction:: noise_region_uncertainty

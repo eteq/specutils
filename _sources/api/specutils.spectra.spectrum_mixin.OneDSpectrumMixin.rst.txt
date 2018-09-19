@@ -1,0 +1,43 @@
+OneDSpectrumMixin
+=================
+
+.. currentmodule:: specutils.spectra.spectrum_mixin
+
+.. autoclass:: OneDSpectrumMixin
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~OneDSpectrumMixin.flux
+      ~OneDSpectrumMixin.rest_value
+      ~OneDSpectrumMixin.spectral_axis
+      ~OneDSpectrumMixin.spectral_axis_unit
+      ~OneDSpectrumMixin.spectral_wcs
+      ~OneDSpectrumMixin.velocity
+      ~OneDSpectrumMixin.velocity_convention
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~OneDSpectrumMixin.new_flux_unit
+      ~OneDSpectrumMixin.with_spectral_unit
+      ~OneDSpectrumMixin.with_velocity_convention
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: flux
+   .. autoattribute:: rest_value
+   .. autoattribute:: spectral_axis
+   .. autoattribute:: spectral_axis_unit
+   .. autoattribute:: spectral_wcs
+   .. autoattribute:: velocity
+   .. autoattribute:: velocity_convention
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: new_flux_unit
+   .. automethod:: with_spectral_unit
+   .. automethod:: with_velocity_convention

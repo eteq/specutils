@@ -1,0 +1,204 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Spectrum Arithmetic &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OneDSpectrumMixin" href="api/specutils.spectra.spectrum_mixin.OneDSpectrumMixin.html" />
+    <link rel="prev" title="trapezoid_smooth" href="api/specutils.manipulation.trapezoid_smooth.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="api/specutils.spectra.spectrum_mixin.OneDSpectrumMixin.html" title="OneDSpectrumMixin">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="api/specutils.manipulation.trapezoid_smooth.html" title="trapezoid_smooth">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      
+      <li>Spectrum Arithmetic</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spectrum-arithmetic">
+<h1>Spectrum Arithmetic<a class="headerlink" href="#spectrum-arithmetic" title="Permalink to this headline">¶</a></h1>
+<p>Specutils sports the ability to perform arithmetic operations over spectrum
+data objects. There is full support for propagating unit information.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Spectrum arithmetic requires that the two spectrum objects have
+compatible WCS information.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Specutils does not currently implement interpolation techniques
+for converting spectral axes information from one WCS source to
+another.</p>
+</div>
+<div class="section" id="basic-arithmetic">
+<h2>Basic Arithmetic<a class="headerlink" href="#basic-arithmetic" title="Permalink to this headline">¶</a></h2>
+<p>Arithmetic support includes addition, subtract, multiplication, and division.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">specutils</span> <span class="kn">import</span> <span class="n">Spectrum1D</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec1</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">spectral_axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">Jy</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec2</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">spectral_axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">Jy</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec3</span> <span class="o">=</span> <span class="n">spec1</span> <span class="o">+</span> <span class="n">spec2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec3</span> 
+<span class="go">Spectrum1D([1.42980955, 0.76450583, 0.53973912, 1.12714653, 1.46747729,</span>
+<span class="go">        0.98485104, 1.13618017, 1.02447445, 0.68610084, 0.85083215,</span>
+<span class="go">        0.57521794, 1.16854341, 1.05139223, 1.44550638, 1.67533841,</span>
+<span class="go">        1.41277807, 0.46008942, 1.1399328 , 0.41708163, 0.61282024,</span>
+<span class="go">        0.40034388, 0.95204057, 0.98280167, 1.30647318, 1.43317265,</span>
+<span class="go">        0.71426198, 0.58622459, 1.17063336, 1.37244261, 1.06886942,</span>
+<span class="go">        1.54349149, 1.15019089, 0.51719866, 1.23114699, 1.16464384,</span>
+<span class="go">        0.90833751, 1.04018595, 1.34931354, 1.01936352, 0.39543304,</span>
+<span class="go">        1.22407522, 0.34658842, 1.18760707, 1.38161461, 1.05829078,</span>
+<span class="go">        1.57852604, 1.13365571, 0.59304282, 1.3913748 ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec3</span><span class="o">.</span><span class="n">wavelength</span>
+<span class="go">&lt;Quantity [ 10.,  20.,  30.,  40.,  50.,  60.,  70.,  80.,  90., 100.,</span>
+<span class="go">       110., 120., 130., 140., 150., 160., 170., 180., 190., 200.,</span>
+<span class="go">       210., 220., 230., 240., 250., 260., 270., 280., 290., 300.,</span>
+<span class="go">       310., 320., 330., 340., 350., 360., 370., 380., 390., 400.,</span>
+<span class="go">       410., 420., 430., 440., 450., 460., 470., 480., 490.] Angstrom&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="propagation-of-uncertainties">
+<h2>Propagation of Uncertainties<a class="headerlink" href="#propagation-of-uncertainties" title="Permalink to this headline">¶</a></h2>
+<p>Arithmetic operations also support the propagation of unceratinty information.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">astropy.nddata</span> <span class="kn">import</span> <span class="n">StdDevUncertainty</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec1</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">spectral_axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">Jy</span><span class="p">,</span> <span class="n">uncertainty</span><span class="o">=</span><span class="n">StdDevUncertainty</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec2</span> <span class="o">=</span> <span class="n">Spectrum1D</span><span class="p">(</span><span class="n">spectral_axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">Jy</span><span class="p">,</span> <span class="n">uncertainty</span><span class="o">=</span><span class="n">StdDevUncertainty</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec1</span><span class="o">.</span><span class="n">uncertainty</span> 
+<span class="go">StdDevUncertainty([0.04386832, 0.09909487, 0.07589192, 0.0311604 ,</span>
+<span class="go">               0.07973579, 0.04687858, 0.01161918, 0.06013496,</span>
+<span class="go">               0.00476118, 0.06720447])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec2</span><span class="o">.</span><span class="n">uncertainty</span> 
+<span class="go">StdDevUncertainty([0.00889175, 0.00890437, 0.05194229, 0.08794455,</span>
+<span class="go">               0.09918037, 0.04815417, 0.06464564, 0.0164324 ,</span>
+<span class="go">               0.04358771, 0.08260218])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec3</span> <span class="o">=</span> <span class="n">spec1</span> <span class="o">+</span> <span class="n">spec2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec3</span><span class="o">.</span><span class="n">uncertainty</span> 
+<span class="go">StdDevUncertainty([0.04476039, 0.09949412, 0.09196513, 0.09330174,</span>
+<span class="go">               0.12725778, 0.06720435, 0.06568154, 0.06233969,</span>
+<span class="go">               0.04384698, 0.10648737])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-specutils.spectra.spectrum_mixin">
+<span id="reference-api"></span><h2>Reference/API<a class="headerlink" href="#module-specutils.spectra.spectrum_mixin" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="api/specutils.spectra.spectrum_mixin.OneDSpectrumMixin.html#specutils.spectra.spectrum_mixin.OneDSpectrumMixin" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneDSpectrumMixin</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="class-inheritance-diagram">
+<h3>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h3>
+<object data="_images/inheritance-56e75c590698014ef1be49155bdf1ced7d4922c9.svg" type="image/svg+xml">
+            <p class="warning">Inheritance diagram of specutils.spectra.spectrum_mixin.OneDSpectrumMixin</p></object>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Spectrum Arithmetic</a><ul>
+<li><a class="reference internal" href="#basic-arithmetic">Basic Arithmetic</a></li>
+<li><a class="reference internal" href="#propagation-of-uncertainties">Propagation of Uncertainties</a></li>
+<li><a class="reference internal" href="#module-specutils.spectra.spectrum_mixin">Reference/API</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/arithmetic.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

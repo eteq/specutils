@@ -1,0 +1,6 @@
+fit_continuum
+=============
+
+.. currentmodule:: specutils.fitting
+
+.. autofunction:: fit_continuum

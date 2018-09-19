@@ -1,0 +1,6 @@
+gaussian_sigma_width
+====================
+
+.. currentmodule:: specutils.analysis
+
+.. autofunction:: gaussian_sigma_width

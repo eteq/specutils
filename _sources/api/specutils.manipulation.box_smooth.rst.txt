@@ -1,0 +1,6 @@
+box_smooth
+==========
+
+.. currentmodule:: specutils.manipulation
+
+.. autofunction:: box_smooth

@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>specutils.manipulation.extract_spectral_region &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../../../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for specutils.manipulation.extract_spectral_region</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;extract_region&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">to_pixel</span><span class="p">(</span><span class="n">subregion</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate and return the left and right indices defined</span>
+<span class="sd">    by the lower and upper bounds and based on the input</span>
+<span class="sd">    `~specutils.spectra.spectrum1d.Spectrum1D`. The left and right indices will</span>
+<span class="sd">    be returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum: `~specutils.spectra.spectrum1d.Spectrum1D`</span>
+<span class="sd">        The spectrum object from which the region will be extracted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    left_index, right_index: int, int</span>
+<span class="sd">        Left and right indices defined by the lower and upper bounds.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">left_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">world_to_pixel</span><span class="p">([</span><span class="n">subregion</span><span class="p">[</span><span class="mi">0</span><span class="p">]])))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">left_index</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">right_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">world_to_pixel</span><span class="p">([</span><span class="n">subregion</span><span class="p">[</span><span class="mi">1</span><span class="p">]])))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">right_index</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">left_index</span><span class="p">,</span> <span class="n">right_index</span>
+
+
+<div class="viewcode-block" id="extract_region"><a class="viewcode-back" href="../../../api/specutils.manipulation.extract_region.html#specutils.manipulation.extract_region">[docs]</a><span class="k">def</span> <span class="nf">extract_region</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract a region from the input `~specutils.spectra.spectrum1d.Spectrum1D`</span>
+<span class="sd">    defined by the lower and upper bounds defined by this SpectralRegion</span>
+<span class="sd">    instance.  The extracted region will be returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spectrum: `~specutils.spectra.spectrum1d.Spectrum1D`</span>
+<span class="sd">        The spectrum object from which the region will be extracted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spectrum: `~specutils.spectra.spectrum1d.Spectrum1D`</span>
+<span class="sd">        Excised spectrum.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The region extracted is a discrete subset of the input spectrum. No interpolation is done</span>
+<span class="sd">    on the left and right side of the spectrum.</span>
+
+<span class="sd">    The region is assumed to be a closed interval (as opposed to Python which is open</span>
+<span class="sd">    on the upper end).  For example:</span>
+
+<span class="sd">        Given:</span>
+<span class="sd">           A ``spectrum`` with spectral_axis of ``[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]*u.um``.</span>
+
+<span class="sd">           A ``region`` defined as ``SpectralRegion(0.2*u.um, 0.5*u.um)``</span>
+
+<span class="sd">        And we calculate ``sub_spectrum = extract_region(spectrum, region)``, then the ``sub_spectrum``</span>
+<span class="sd">        spectral axis will be ``[0.2, 0.3, 0.4, 0.5] * u.um``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">extracted_spectrum</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">subregion</span> <span class="ow">in</span> <span class="n">region</span><span class="o">.</span><span class="n">_subregions</span><span class="p">:</span>
+        <span class="n">left_index</span><span class="p">,</span> <span class="n">right_index</span> <span class="o">=</span> <span class="n">to_pixel</span><span class="p">(</span><span class="n">subregion</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">)</span>
+
+        <span class="c1"># If both indices are out of bounds then return None</span>
+        <span class="k">if</span> <span class="n">left_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">right_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extracted_spectrum</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># If only one index is out of bounds then set it to</span>
+            <span class="c1"># the lower or upper extent</span>
+            <span class="k">if</span> <span class="n">left_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">left_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="n">right_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">right_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spectrum</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">left_index</span> <span class="o">&gt;</span> <span class="n">right_index</span><span class="p">:</span>
+                <span class="n">left_index</span><span class="p">,</span> <span class="n">right_index</span> <span class="o">=</span> <span class="n">right_index</span><span class="p">,</span> <span class="n">left_index</span>
+
+            <span class="n">extracted_spectrum</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spectrum</span><span class="p">[</span><span class="n">left_index</span><span class="p">:</span><span class="n">right_index</span><span class="p">])</span>
+
+    <span class="c1"># If there is only one subregion in the region then we will</span>
+    <span class="c1"># just return a spectrum.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">region</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">extracted_spectrum</span> <span class="o">=</span> <span class="n">extracted_spectrum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">extracted_spectrum</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

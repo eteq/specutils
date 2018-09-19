@@ -1,0 +1,6 @@
+gaussian_smooth
+===============
+
+.. currentmodule:: specutils.manipulation
+
+.. autofunction:: gaussian_smooth

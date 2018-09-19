@@ -1,0 +1,6 @@
+trapezoid_smooth
+================
+
+.. currentmodule:: specutils.manipulation
+
+.. autofunction:: trapezoid_smooth

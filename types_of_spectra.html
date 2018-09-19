@@ -1,0 +1,170 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Overview of How Specutils Represents Spectra &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Working with Spectrum1Ds" href="spectrum1d.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="spectrum1d.html" title="Working with Spectrum1Ds">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="installation.html" title="Installation">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      
+      <li>Overview of How Specutils Represents Spectra</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="overview-of-how-specutils-represents-spectra">
+<h1>Overview of How Specutils Represents Spectra<a class="headerlink" href="#overview-of-how-specutils-represents-spectra" title="Permalink to this headline">¶</a></h1>
+<p>The main principle of <code class="docutils literal notranslate"><span class="pre">specutils</span></code> is to work as a toolbox.  That is, it aims
+to provide the pieces needed to build particular spectroscopic workflows
+without imposing a specific <em>required</em> set of algorithms or approaches to
+spectroscopic analysis.  To that end, it aims to represent several different
+types of ways one might wish to represent sets of spectroscopic data in Python.
+These objects contains logic to handle multi-dimensional flux data, spectral
+axes in various forms (wavelenth, frequency, energy, velocity, etc.), convenient
+and unobtrusive wcs support, and uncertainty handling. The core containers also
+handle units, a framework for reading and writing from various file formats, and
+arithmetic operation support.</p>
+<p>The core data objects  are primarily distinguished by the different ways of
+storing the flux and the spectral axis . These cases are detailed below, along
+with their corresponding <code class="docutils literal notranslate"><span class="pre">specutils</span></code> representations:</p>
+<ol class="arabic simple">
+<li>A 1D flux of length <code class="docutils literal notranslate"><span class="pre">n</span></code>, and a matched spectral axis (which may be
+tabulated as an array, or encoded in a WCS). This is what typically is in
+mind when one speaks of “a single spectrum”, and therefore the analysis tools
+are general couched as applying to this case. In <code class="docutils literal notranslate"><span class="pre">specutils</span></code> this is
+represented by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Spectrum1D</span></code> object with a 1-dimensional
+<code class="docutils literal notranslate"><span class="pre">flux</span></code>.</li>
+<li>A set of fluxes that can be represented in an array-like form of shape
+<code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">m</span> <span class="pre">(x</span> <span class="pre">...)</span></code>,  with a spectral axis strictly of length <code class="docutils literal notranslate"><span class="pre">n</span></code> (and a
+matched WCS). In <code class="docutils literal notranslate"><span class="pre">specutils</span></code> this is represented by the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Spectrum1D</span></code> object where <code class="docutils literal notranslate"><span class="pre">len(flux.shape)</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> . In this sense
+the “1D” refers to the spectral axis, <em>not</em> the flux.</li>
+<li>A set of fluxes  of shape <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">m</span> <span class="pre">(x</span> <span class="pre">...)</span></code>, and a set of spectral axes that
+are the same shape. This is distinguished from the above cases because there
+are as many spectral axes as there are spectra.  In this sense it is a
+collection of spectra, so can be thought of as a collection of
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Spectrum1D</span></code> objects.  But because it is often more performant to
+store the collection together as just one set of flux and spectral axis
+arrays, this case is represented by a separate object in <code class="docutils literal notranslate"><span class="pre">specutils</span></code>:
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">SpectrumCollection</span></code>.</li>
+<li>An arbitrary collection of fluxes that are not all the same spectral length
+even in the spectral axis direction.  That is, case 3, but “ragged” in the
+sense that not all the spectra are length <code class="docutils literal notranslate"><span class="pre">n</span></code>.  Because there is no
+performance benefit to be gained from using arrays (because the flux array is
+not rectangular), this case does not have a specific representation in
+<code class="docutils literal notranslate"><span class="pre">specutils</span></code>.  Instead, this case should be dealt with by making lists (or
+numpy object-arrays) of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Spectrum1D</span></code> objects, and iterating over
+them.</li>
+</ol>
+<p>In all of these cases, the objects have additional attributes (e.g.
+uncertainties), along with other metadata.  But the list above is exhaustive
+under the assumption that the additional attributes have matched shape to either
+flux or spectral axis (or some combination of the two).</p>
+<p>As detailed above, these cases are represented in specutils via two classes:
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Spectrum1D</span></code> (Cases 1 and 2, and indirecly 4) and
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">SpectrumCollection</span></code> (Case 3). A diagram of these data structures is
+proved below.</p>
+<img alt="diagrams of specutils classes" src="_images/specutils_classes_diagrams.png" />
+<p>While they all differ in details of how they address specific multidimensional
+datasets, these objects all share the core features that they carry a “spectral
+axis” and a “flux”.  The “spectral axis” (<code class="docutils literal notranslate"><span class="pre">Spectrum*.spectral_axis</span></code>) is the physical
+interpretation for each pixel (the “world coordinate” in WCS language). For
+astronomical spectra this is usually wavelength, frequency, or photon energy,
+although for un-calibrated spectra it may simply be in pixel units. The “flux”
+(<code class="docutils literal notranslate"><span class="pre">Spectrum*.flux</span></code>) is the spectrum itself - while the name “flux” may seem to imply a
+specific unit, in fact the <code class="docutils literal notranslate"><span class="pre">flux</span></code> can carry any unit - actual flux, surface
+brightness in magnitudes, or counts.  However, the best form for representing
+<em>calibrated</em> spectra is spectral flux density (power per area per spectral
+spectral axis unit), and the analysis tools often work best if a spectrum is in
+those units.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Overview of How Specutils Represents Spectra</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/types_of_spectra.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

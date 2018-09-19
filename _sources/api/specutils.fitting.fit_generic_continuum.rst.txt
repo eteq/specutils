@@ -1,0 +1,6 @@
+fit_generic_continuum
+=====================
+
+.. currentmodule:: specutils.fitting
+
+.. autofunction:: fit_generic_continuum

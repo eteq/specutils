@@ -1,0 +1,6 @@
+convolution_smooth
+==================
+
+.. currentmodule:: specutils.manipulation
+
+.. autofunction:: convolution_smooth

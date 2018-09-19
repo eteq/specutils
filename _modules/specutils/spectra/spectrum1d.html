@@ -1,0 +1,400 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>specutils.spectra.spectrum1d &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../../../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../../../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for specutils.spectra.spectrum1d</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.nddata</span> <span class="k">import</span> <span class="n">NDDataRef</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.decorators</span> <span class="k">import</span> <span class="n">lazyproperty</span>
+<span class="kn">from</span> <span class="nn">astropy.nddata</span> <span class="k">import</span> <span class="n">NDUncertainty</span>
+<span class="kn">from</span> <span class="nn">..wcs</span> <span class="k">import</span> <span class="n">WCSWrapper</span><span class="p">,</span> <span class="n">WCSAdapter</span>
+<span class="kn">from</span> <span class="nn">.spectrum_mixin</span> <span class="k">import</span> <span class="n">OneDSpectrumMixin</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Spectrum1D&#39;</span><span class="p">]</span>
+
+<span class="n">__doctest_skip__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Spectrum1D.spectral_resolution&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Spectrum1D"><a class="viewcode-back" href="../../../api/specutils.spectra.spectrum1d.Spectrum1D.html#specutils.spectra.spectrum1d.Spectrum1D">[docs]</a><span class="k">class</span> <span class="nc">Spectrum1D</span><span class="p">(</span><span class="n">OneDSpectrumMixin</span><span class="p">,</span> <span class="n">NDDataRef</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Spectrum container for 1D spectral data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flux : `astropy.units.Quantity` or astropy.nddata.NDData`-like</span>
+<span class="sd">        The flux data for this spectrum.</span>
+<span class="sd">    spectral_axis : `astropy.units.Quantity`</span>
+<span class="sd">        Dispersion information with the same shape as the last (or only)</span>
+<span class="sd">        dimension of flux.</span>
+<span class="sd">    wcs : `astropy.wcs.WCS` or `gwcs.wcs.WCS`</span>
+<span class="sd">        WCS information object.</span>
+<span class="sd">    velocity_convention : {&quot;doppler_relativistic&quot;, &quot;doppler_optical&quot;, &quot;doppler_radio&quot;}</span>
+<span class="sd">        Convention used for velocity conversions.</span>
+<span class="sd">    rest_value : `~astropy.units.Quantity`</span>
+<span class="sd">        Any quantity supported by the standard spectral equivalencies</span>
+<span class="sd">        (wavelength, energy, frequency, wave number). Describes the rest value</span>
+<span class="sd">        of the spectral axis for use with velocity conversions.</span>
+<span class="sd">    uncertainty : `~astropy.nddata.NDUncertainty`</span>
+<span class="sd">        Contains uncertainty information along with propagation rules for</span>
+<span class="sd">        spectrum arithmetic. Can take a unit, but if none is given, will use</span>
+<span class="sd">        the unit defined in the flux.</span>
+<span class="sd">    meta : dict</span>
+<span class="sd">        Arbitrary container for any user-specific information to be carried</span>
+<span class="sd">        around with the spectrum container object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spectral_axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wcs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">velocity_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rest_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># If the flux (data) argument is a subclass of nddataref (as it would</span>
+        <span class="c1"># be for internal arithmetic operations), avoid setup entirely.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">NDDataRef</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_velocity_convention</span> <span class="o">=</span> <span class="n">flux</span><span class="o">.</span><span class="n">_velocity_convention</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span> <span class="o">=</span> <span class="n">flux</span><span class="o">.</span><span class="n">_rest_value</span>
+
+            <span class="nb">super</span><span class="p">(</span><span class="n">Spectrum1D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Ensure that the flux argument is an astropy quantity</span>
+        <span class="k">if</span> <span class="n">flux</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Flux must be a `Quantity` object.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Insure that the unit information codified in the quantity object is</span>
+        <span class="c1"># the One True Unit.</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span> <span class="n">flux</span><span class="o">.</span><span class="n">unit</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">)</span>
+                                            <span class="k">else</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">))</span>
+
+        <span class="c1"># In cases of slicing, new objects will be initialized with `data`</span>
+        <span class="c1"># instead of `flux`. Ensure we grab the `data` argument.</span>
+        <span class="k">if</span> <span class="n">flux</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;data&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">flux</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Attempt to parse the spectral axis. If none is given, try instead to</span>
+        <span class="c1"># parse a given wcs. This is put into a GWCS object to</span>
+        <span class="c1"># then be used behind-the-scenes for all specutils operations.</span>
+        <span class="k">if</span> <span class="n">spectral_axis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Ensure that the spectral axis is an astropy quantity</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spectral_axis</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Spectral axis must be a `Quantity` object.&quot;</span><span class="p">)</span>
+
+            <span class="n">wcs</span> <span class="o">=</span> <span class="n">WCSWrapper</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">spectral_axis</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">wcs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">wcs</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">WCSAdapter</span><span class="p">):</span>
+                <span class="n">wcs</span> <span class="o">=</span> <span class="n">WCSWrapper</span><span class="p">(</span><span class="n">wcs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="c1"># In the case where the arithmetic operation is being performed with</span>
+            <span class="c1"># a single float, int, or array object, just go ahead and ignore wcs</span>
+            <span class="c1"># requirements</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Spectrum1D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">flux</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If no wcs and no spectral axis has been given, raise an error</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;No WCS object or spectral axis information has &quot;</span>
+                              <span class="s2">&quot;been given. Please provide one.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_velocity_convention</span> <span class="o">=</span> <span class="n">velocity_convention</span>
+
+        <span class="k">if</span> <span class="n">rest_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">wcs</span><span class="o">.</span><span class="n">rest_frequency</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span> <span class="o">=</span> <span class="n">wcs</span><span class="o">.</span><span class="n">rest_frequency</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span>
+            <span class="k">elif</span> <span class="n">wcs</span><span class="o">.</span><span class="n">rest_wavelength</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span> <span class="o">=</span> <span class="n">wcs</span><span class="o">.</span><span class="n">rest_wavelength</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">AA</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">AA</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span> <span class="o">=</span> <span class="n">rest_value</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No unit information provided with rest value. &quot;</span>
+                             <span class="s2">&quot;Assuming units of spectral axis (&#39;</span><span class="si">%s</span><span class="s2">&#39;).&quot;</span><span class="p">,</span>
+                             <span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">rest_value</span><span class="p">,</span> <span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">AA</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest_value</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">u</span><span class="o">.</span><span class="n">UnitsError</span><span class="p">(</span><span class="s2">&quot;Rest value must be energy/wavelength/frequency equivalent.&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Spectrum1D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">flux</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">flux</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">)</span> <span class="k">else</span> <span class="n">flux</span><span class="p">,</span>
+            <span class="n">wcs</span><span class="o">=</span><span class="n">wcs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The frequency as a `~astropy.units.Quantity` in units of GHz</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GHz</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The wavelength as a `~astropy.units.Quantity` in units of Angstroms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The energy of the spectral axis as a `~astropy.units.Quantity` in units</span>
+<span class="sd">        of eV.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">eV</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">photon_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The flux density of photons as a `~astropy.units.Quantity`, in units of</span>
+<span class="sd">        photons per cm^2 per second per spectral_axis unit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flux_in_spectral_axis_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">W</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span><span class="o">**-</span><span class="mi">1</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">spectral_density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">))</span>
+        <span class="n">photon_flux_density</span> <span class="o">=</span> <span class="n">flux_in_spectral_axis_units</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">photon</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">photon_flux_density</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">photon</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">**-</span><span class="mi">1</span> <span class="o">*</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">unit</span><span class="o">**-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@lazyproperty</span>
+    <span class="k">def</span> <span class="nf">bin_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">bin_edges</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_compare_wcs</span><span class="p">(</span><span class="n">this_operand</span><span class="p">,</span> <span class="n">other_operand</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        NNData arithmetic callable to determine if two wcs&#39;s are compatible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If the other operand is a simple number or array, allow the operations</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">other_operand</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other_operand</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other_operand</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># First check if units are equivalent, if so, create a new spectrum</span>
+        <span class="c1"># object with spectral axis in compatible units</span>
+        <span class="n">other_wcs</span> <span class="o">=</span> <span class="n">other_operand</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">with_spectral_unit</span><span class="p">(</span>
+            <span class="n">this_operand</span><span class="o">.</span><span class="n">wcs</span><span class="o">.</span><span class="n">spectral_axis_unit</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">other_wcs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Check if the shape of the axes are compatible</span>
+        <span class="k">if</span> <span class="n">this_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">other_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Shape of spectral axes between operands must be &quot;</span>
+                          <span class="s2">&quot;equivalent.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># And that they cover the same range</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">this_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">other_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span>
+                <span class="n">this_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">other_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Spectral axes between operands must cover the &quot;</span>
+                          <span class="s2">&quot;same range. Interpolation may be required.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Check if the delta dispersion is equivalent between the two axes</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">this_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">),</span>
+                              <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">other_operand</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">)):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Delta dispersion of spectral axes of operands &quot;</span>
+                          <span class="s2">&quot;must be equivalent. Interpolation may be required.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NDDataRef</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="n">other</span><span class="p">,</span> <span class="n">compare_wcs</span><span class="o">=</span><span class="k">lambda</span> <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NDDataRef</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span>
+            <span class="n">other</span><span class="p">,</span> <span class="n">compare_wcs</span><span class="o">=</span><span class="k">lambda</span> <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NDDataRef</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+            <span class="n">other</span><span class="p">,</span> <span class="n">compare_wcs</span><span class="o">=</span><span class="k">lambda</span> <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__div__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NDDataRef</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+            <span class="n">other</span><span class="p">,</span> <span class="n">compare_wcs</span><span class="o">=</span><span class="k">lambda</span> <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NDDataRef</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+            <span class="n">other</span><span class="p">,</span> <span class="n">compare_wcs</span><span class="o">=</span><span class="k">lambda</span> <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_wcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_format_array_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:17}</span><span class="s2"> [ </span><span class="si">{:.5}</span><span class="s2">, ..., </span><span class="si">{:.5}</span><span class="s2"> ],  mean=</span><span class="si">{:.5}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">mean</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;Spectrum1D &quot;</span>
+        <span class="c1"># Handle case of single value flux</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;(length=1)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="s2">&quot;flux:   </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">)</span>
+
+        <span class="c1"># Handle case of multiple flux arrays</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;(length=</span><span class="si">{}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">flux</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">):</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;flux</span><span class="si">{:2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_array_summary</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">flux</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_array_summary</span><span class="p">(</span><span class="s1">&#39;flux&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="c1"># Add information about spectral axis</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_array_summary</span><span class="p">(</span><span class="s1">&#39;spectral axis&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">)</span>
+        <span class="c1"># Add information about uncertainties if available</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncertainty</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">uncertainty:      [ </span><span class="si">{}</span><span class="s2">, ..., </span><span class="si">{}</span><span class="s2"> ]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">uncertainty</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncertainty</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wcs</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;&lt;Spectrum1D(flux=</span><span class="si">{}</span><span class="s2">, spectral_axis=</span><span class="si">{}</span><span class="s2">)&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spectral_axis</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;&lt;Spectrum1D(flux=</span><span class="si">{}</span><span class="s2">)&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="Spectrum1D.spectral_resolution"><a class="viewcode-back" href="../../../api/specutils.spectra.spectrum1d.Spectrum1D.html#specutils.spectra.spectrum1d.Spectrum1D.spectral_resolution">[docs]</a>    <span class="k">def</span> <span class="nf">spectral_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_dispersion</span><span class="p">,</span> <span class="n">delta_dispersion</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate the probability distribution of the spectral resolution.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        To tabulate a binned resolution function at 6000A covering +/-10A in</span>
+<span class="sd">        0.2A steps:</span>
+
+<span class="sd">        &gt;&gt;&gt; R = spectrum1d.spectral_resolution(</span>
+<span class="sd">        ...     6000 * u.Angstrom, np.linspace(-10, 10, 51) * u.Angstrom)</span>
+<span class="sd">        &gt;&gt;&gt; assert R.shape == (50,)</span>
+<span class="sd">        &gt;&gt;&gt; assert np.allclose(R.sum(), 1.)</span>
+
+<span class="sd">        To build a sparse resolution matrix for true wavelengths 4000-8000A</span>
+<span class="sd">        in 0.1A steps:</span>
+
+<span class="sd">        &gt;&gt;&gt; R = spectrum1d.spectral_resolution(</span>
+<span class="sd">        ...     np.linspace(4000, 8000, 40001)[:, np.newaxis] * u.Angstrom,</span>
+<span class="sd">        ...     np.linspace(-10, +10, 201) * u.Angstrom)</span>
+<span class="sd">        &gt;&gt;&gt; assert R.shape == (40000, 200)</span>
+<span class="sd">        &gt;&gt;&gt; assert np.allclose(R.sum(axis=1), 1.)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        true_dispersion : `~astropy.units.Quantity`</span>
+<span class="sd">            True value(s) of dispersion for which the resolution should be</span>
+<span class="sd">            evaluated.</span>
+<span class="sd">        delta_dispersion : `~astropy.units.Quantity`</span>
+<span class="sd">            Array of (observed - true) dispersion bin edges to integrate the</span>
+<span class="sd">            resolution probability density over.</span>
+<span class="sd">        axis : int</span>
+<span class="sd">            Which axis of ``delta_dispersion`` contains the strictly increasing</span>
+<span class="sd">            dispersion values to interpret as bin edges.  The dimension of</span>
+<span class="sd">            ``delta_dispersion`` along this axis must be at least two.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            Array of dimensionless probabilities calculated as the integral of</span>
+<span class="sd">            P(observed | true) over each bin in (observed - true). The output</span>
+<span class="sd">            shape is the result of broadcasting the input shapes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

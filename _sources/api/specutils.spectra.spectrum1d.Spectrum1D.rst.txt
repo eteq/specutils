@@ -1,0 +1,37 @@
+Spectrum1D
+==========
+
+.. currentmodule:: specutils.spectra.spectrum1d
+
+.. autoclass:: Spectrum1D
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~Spectrum1D.bin_edges
+      ~Spectrum1D.energy
+      ~Spectrum1D.frequency
+      ~Spectrum1D.photon_flux
+      ~Spectrum1D.shape
+      ~Spectrum1D.wavelength
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~Spectrum1D.spectral_resolution
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: bin_edges
+   .. autoattribute:: energy
+   .. autoattribute:: frequency
+   .. autoattribute:: photon_flux
+   .. autoattribute:: shape
+   .. autoattribute:: wavelength
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: spectral_resolution

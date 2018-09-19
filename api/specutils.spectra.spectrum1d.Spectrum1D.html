@@ -1,0 +1,290 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Spectrum1D &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Working With SpectrumCollections" href="../spectrum_collection.html" />
+    <link rel="prev" title="Working with Spectrum1Ds" href="../spectrum1d.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../spectrum_collection.html" title="Working With SpectrumCollections">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../spectrum1d.html" title="Working with Spectrum1Ds">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../spectrum1d.html" accesskey="U">Working with Spectrum1Ds</a> &#187;</li>
+      
+      <li>Spectrum1D</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spectrum1d">
+<h1>Spectrum1D<a class="headerlink" href="#spectrum1d" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D">
+<em class="property">class </em><code class="descclassname">specutils.spectra.spectrum1d.</code><code class="descname">Spectrum1D</code><span class="sig-paren">(</span><em>flux=None</em>, <em>spectral_axis=None</em>, <em>wcs=None</em>, <em>velocity_convention=None</em>, <em>rest_value=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/spectra/spectrum1d.html#Spectrum1D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.html#specutils.spectra.spectrum_mixin.OneDSpectrumMixin" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">specutils.spectra.spectrum_mixin.OneDSpectrumMixin</span></code></a>, <a class="reference internal" href="http://docs.astropy.org/en/stable/api/astropy.nddata.NDDataRef.html#astropy.nddata.NDDataRef" title="astropy.nddata.NDDataRef"><code class="docutils literal notranslate"><span class="pre">astropy.nddata.NDDataRef</span></code></a></p>
+<p>Spectrum container for 1D spectral data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>flux</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a> or astropy.nddata.NDData`-like</p>
+<blockquote>
+<div><p>The flux data for this spectrum.</p>
+</div></blockquote>
+<p><strong>spectral_axis</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></p>
+<blockquote>
+<div><p>Dispersion information with the same shape as the last (or only)
+dimension of flux.</p>
+</div></blockquote>
+<p><strong>wcs</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.wcs.WCS</span></code></a> or <a class="reference external" href="https://gwcs.readthedocs.io/en/latest/api/gwcs.wcs.WCS.html#gwcs.wcs.WCS" title="(in gwcs v0.10.dev377)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gwcs.wcs.WCS</span></code></a></p>
+<blockquote>
+<div><p>WCS information object.</p>
+</div></blockquote>
+<p><strong>velocity_convention</strong> : {“doppler_relativistic”, “doppler_optical”, “doppler_radio”}</p>
+<blockquote>
+<div><p>Convention used for velocity conversions.</p>
+</div></blockquote>
+<p><strong>rest_value</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></p>
+<blockquote>
+<div><p>Any quantity supported by the standard spectral equivalencies
+(wavelength, energy, frequency, wave number). Describes the rest value
+of the spectral axis for use with velocity conversions.</p>
+</div></blockquote>
+<p><strong>uncertainty</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.nddata.NDUncertainty.html#astropy.nddata.NDUncertainty" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NDUncertainty</span></code></a></p>
+<blockquote>
+<div><p>Contains uncertainty information along with propagation rules for
+spectrum arithmetic. Can take a unit, but if none is given, will use
+the unit defined in the flux.</p>
+</div></blockquote>
+<p><strong>meta</strong> : dict</p>
+<blockquote class="last">
+<div><p>Arbitrary container for any user-specific information to be carried
+around with the spectrum container object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum1d.Spectrum1D.bin_edges" title="specutils.spectra.spectrum1d.Spectrum1D.bin_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_edges</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum1d.Spectrum1D.energy" title="specutils.spectra.spectrum1d.Spectrum1D.energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">energy</span></code></a></td>
+<td>The energy of the spectral axis as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> in units of eV.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum1d.Spectrum1D.frequency" title="specutils.spectra.spectrum1d.Spectrum1D.frequency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequency</span></code></a></td>
+<td>The frequency as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> in units of GHz</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum1d.Spectrum1D.photon_flux" title="specutils.spectra.spectrum1d.Spectrum1D.photon_flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">photon_flux</span></code></a></td>
+<td>The flux density of photons as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>, in units of photons per cm^2 per second per spectral_axis unit</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum1d.Spectrum1D.shape" title="specutils.spectra.spectrum1d.Spectrum1D.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum1d.Spectrum1D.wavelength" title="specutils.spectra.spectrum1d.Spectrum1D.wavelength"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wavelength</span></code></a></td>
+<td>The wavelength as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> in units of Angstroms</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum1d.Spectrum1D.spectral_resolution" title="specutils.spectra.spectrum1d.Spectrum1D.spectral_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spectral_resolution</span></code></a>(true_dispersion,&nbsp;…[,&nbsp;axis])</td>
+<td>Evaluate the probability distribution of the spectral resolution.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D.bin_edges">
+<code class="descname">bin_edges</code><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D.bin_edges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D.energy">
+<code class="descname">energy</code><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The energy of the spectral axis as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> in units
+of eV.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D.frequency">
+<code class="descname">frequency</code><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D.frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>The frequency as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> in units of GHz</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D.photon_flux">
+<code class="descname">photon_flux</code><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D.photon_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>The flux density of photons as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a>, in units of
+photons per cm^2 per second per spectral_axis unit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D.shape">
+<code class="descname">shape</code><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D.wavelength">
+<code class="descname">wavelength</code><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D.wavelength" title="Permalink to this definition">¶</a></dt>
+<dd><p>The wavelength as a <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a> in units of Angstroms</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="method">
+<dt id="specutils.spectra.spectrum1d.Spectrum1D.spectral_resolution">
+<code class="descname">spectral_resolution</code><span class="sig-paren">(</span><em>true_dispersion</em>, <em>delta_dispersion</em>, <em>axis=-1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/spectra/spectrum1d.html#Spectrum1D.spectral_resolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum1d.Spectrum1D.spectral_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the probability distribution of the spectral resolution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>true_dispersion</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></p>
+<blockquote>
+<div><p>True value(s) of dispersion for which the resolution should be
+evaluated.</p>
+</div></blockquote>
+<p><strong>delta_dispersion</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></p>
+<blockquote>
+<div><p>Array of (observed - true) dispersion bin edges to integrate the
+resolution probability density over.</p>
+</div></blockquote>
+<p><strong>axis</strong> : int</p>
+<blockquote>
+<div><p>Which axis of <code class="docutils literal notranslate"><span class="pre">delta_dispersion</span></code> contains the strictly increasing
+dispersion values to interpret as bin edges.  The dimension of
+<code class="docutils literal notranslate"><span class="pre">delta_dispersion</span></code> along this axis must be at least two.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">numpy array</p>
+<blockquote class="last">
+<div><p>Array of dimensionless probabilities calculated as the integral of
+P(observed | true) over each bin in (observed - true). The output
+shape is the result of broadcasting the input shapes.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>To tabulate a binned resolution function at 6000A covering +/-10A in
+0.2A steps:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="n">spectrum1d</span><span class="o">.</span><span class="n">spectral_resolution</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="mi">6000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">51</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">R</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">50</span><span class="p">,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="mf">1.</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To build a sparse resolution matrix for true wavelengths 4000-8000A
+in 0.1A steps:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">R</span> <span class="o">=</span> <span class="n">spectrum1d</span><span class="o">.</span><span class="n">spectral_resolution</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">40001</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">+</span><span class="mi">10</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Angstrom</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">R</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">40000</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="mf">1.</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Spectrum1D</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/specutils.spectra.spectrum1d.Spectrum1D.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

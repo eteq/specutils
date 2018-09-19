@@ -1,0 +1,143 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>line_flux &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="snr" href="specutils.analysis.snr.html" />
+    <link rel="prev" title="gaussian_sigma_width" href="specutils.analysis.gaussian_sigma_width.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="specutils.analysis.snr.html" title="snr">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="specutils.analysis.gaussian_sigma_width.html" title="gaussian_sigma_width">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../analysis.html" accesskey="U">Analysis</a> &#187;</li>
+      
+      <li>line_flux</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="line-flux">
+<h1>line_flux<a class="headerlink" href="#line-flux" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="specutils.analysis.line_flux">
+<code class="descclassname">specutils.analysis.</code><code class="descname">line_flux</code><span class="sig-paren">(</span><em>spectrum</em>, <em>regions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/analysis/flux.html#line_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.analysis.line_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the integrated flux in a spectrum or region of a spectrum.</p>
+<p>Applies to the whole spectrum by default, but can be limited to a specific
+feature (like a spectral line) if a region is given.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>spectrum</strong> : Spectrum1D</p>
+<blockquote>
+<div><p>The spectrum object over which the summed flux will be calculated.</p>
+</div></blockquote>
+<p><strong>regions: `~specutils.utils.SpectralRegion` or list of `~specutils.utils.SpectralRegion`</strong></p>
+<blockquote>
+<div><p>Region within the spectrum to calculate the gaussian sigma width. If
+regions is <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, computation is performed over entire spectrum.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>flux</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></p>
+<blockquote class="last">
+<div><p>Flux in the provided spectrum (or regions). Unit isthe <code class="docutils literal notranslate"><span class="pre">spectrum</span></code>’s‘
+<code class="docutils literal notranslate"><span class="pre">flux</span></code> unit times <code class="docutils literal notranslate"><span class="pre">spectral_axis</span></code> unit.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>While the flux can be computed on any spectrum or region, it should be
+continuum-subtracted to compute actual line fluxes.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">line_flux</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/specutils.analysis.line_flux.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

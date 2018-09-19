@@ -1,0 +1,316 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>OneDSpectrumMixin &#8212; specutils v0.4.dev1227</title>
+    <link rel="stylesheet" href="../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    <link rel="shortcut icon" href="../_static/astropy_logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Loading and Defining Custom Spectral File Formats" href="../custom_loading.html" />
+    <link rel="prev" title="Spectrum Arithmetic" href="../arithmetic.html" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+<script type="text/javascript" src="../_static/copybutton.js"></script>
+
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../index.html"><span id="logotext1">spec</span><span id="logotext2">utils</span><span id="logotext3">:docs</span></a>
+  <ul>
+    <li><a class="homelink" title="Astropy Homepage" href="http://www.astropy.org"></a></li>
+    <li><a title="General Index" href="../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="../custom_loading.html" title="Loading and Defining Custom Spectral File Formats">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="../arithmetic.html" title="Spectrum Arithmetic">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="../index.html">specutils v0.4.dev1227</a>
+	 &#187;
+      </li>
+      <li><a href="../arithmetic.html" accesskey="U">Spectrum Arithmetic</a> &#187;</li>
+      
+      <li>OneDSpectrumMixin</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="onedspectrummixin">
+<h1>OneDSpectrumMixin<a class="headerlink" href="#onedspectrummixin" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin">
+<em class="property">class </em><code class="descclassname">specutils.spectra.spectrum_mixin.</code><code class="descname">OneDSpectrumMixin</code><a class="reference internal" href="../_modules/specutils/spectra/spectrum_mixin.html#OneDSpectrumMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p class="rubric">Attributes Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.flux" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.flux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux</span></code></a></td>
+<td>Converts the stored data and unit information into a quantity.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.rest_value" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.rest_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rest_value</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spectral_axis</span></code></a></td>
+<td>Returns a Quantity array with the values of the spectral axis.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis_unit" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spectral_axis_unit</span></code></a></td>
+<td>Returns the units of the spectral axis.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_wcs" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_wcs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spectral_wcs</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity</span></code></a></td>
+<td>Converts the spectral axis array to the given velocity space unit given the rest value.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity_convention" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity_convention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity_convention</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.new_flux_unit" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.new_flux_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">new_flux_unit</span></code></a>(unit[,&nbsp;equivalencies,&nbsp;…])</td>
+<td>Converts the flux data to the specified unit.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_spectral_unit" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_spectral_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_spectral_unit</span></code></a>(unit[,&nbsp;…])</td>
+<td>Returns a new spectrum with a different spectral axis unit.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_velocity_convention" title="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_velocity_convention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">with_velocity_convention</span></code></a>(velocity_convention)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.flux">
+<code class="descname">flux</code><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the stored data and unit information into a quantity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Quantity</span></code></a></p>
+<blockquote class="last">
+<div><p>Spectral data as a quantity.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.rest_value">
+<code class="descname">rest_value</code><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.rest_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis">
+<code class="descname">spectral_axis</code><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Quantity array with the values of the spectral axis.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis_unit">
+<code class="descname">spectral_axis_unit</code><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_axis_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the units of the spectral axis.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_wcs">
+<code class="descname">spectral_wcs</code><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.spectral_wcs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity">
+<code class="descname">velocity</code><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the spectral axis array to the given velocity space unit given
+the rest value.</p>
+<p>These aren’t input parameters but required Spectrum attributes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>unit</strong> : str or ~`astropy.units.Unit`</p>
+<blockquote>
+<div><p>The unit to convert the dispersion array to.</p>
+</div></blockquote>
+<p><strong>rest</strong> : ~`astropy.units.Quantity`</p>
+<blockquote>
+<div><p>Any quantity supported by the standard spectral equivalencies
+(wavelength, energy, frequency, wave number).</p>
+</div></blockquote>
+<p><strong>type</strong> : {“doppler_relativistic”, “doppler_optical”, “doppler_radio”}</p>
+<blockquote>
+<div><p>The type of doppler spectral equivalency.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">~`astropy.units.Quantity`</p>
+<blockquote class="last">
+<div><p>The converted dispersion array in the new dispersion space.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity_convention">
+<code class="descname">velocity_convention</code><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.velocity_convention" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="method">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.new_flux_unit">
+<code class="descname">new_flux_unit</code><span class="sig-paren">(</span><em>unit</em>, <em>equivalencies=None</em>, <em>suppress_conversion=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/spectra/spectrum_mixin.html#OneDSpectrumMixin.new_flux_unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.new_flux_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the flux data to the specified unit.  This is an in-place
+change to the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>unit</strong> : str or <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Unit</span></code></a></p>
+<blockquote>
+<div><p>The unit to conver the flux array to.</p>
+</div></blockquote>
+<p><strong>equivalencies</strong> : list of equivalencies</p>
+<blockquote>
+<div><p>Custom equivalencies to apply to conversions.
+Set to spectral_density by default.</p>
+</div></blockquote>
+<p><strong>suppress_conversion</strong> : bool</p>
+<blockquote>
+<div><p>Set to true if updating the unit without
+converting data values.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Spectrum1D</span></code></p>
+<blockquote class="last">
+<div><p>A new spectrum with the converted flux array</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_spectral_unit">
+<code class="descname">with_spectral_unit</code><span class="sig-paren">(</span><em>unit</em>, <em>velocity_convention=None</em>, <em>rest_value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/spectra/spectrum_mixin.html#OneDSpectrumMixin.with_spectral_unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_spectral_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new spectrum with a different spectral axis unit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>unit</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="(in Astropy v3.0.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unit</span></code></a></p>
+<blockquote>
+<div><p>Any valid spectral unit: velocity, (wave)length, or frequency.
+Only vacuum units are supported.</p>
+</div></blockquote>
+<p><strong>velocity_convention</strong> : ‘relativistic’, ‘radio’, or ‘optical’</p>
+<blockquote>
+<div><p>The velocity convention to use for the output velocity axis.
+Required if the output type is velocity. This can be either one
+of the above strings, or an <a class="reference external" href="http://docs.astropy.org/en/stable/units/index.html#module-astropy.units" title="(in Astropy v3.0.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astropy.units</span></code></a> equivalency.</p>
+</div></blockquote>
+<p><strong>rest_value</strong> : <a class="reference external" href="http://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v3.0.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantity</span></code></a></p>
+<blockquote class="last">
+<div><p>A rest wavelength or frequency with appropriate units.  Required if
+output type is velocity.  The spectrum’s WCS should include this
+already if the <em>input</em> type is velocity, but the WCS’s rest
+wavelength/frequency can be overridden with this parameter.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_velocity_convention">
+<code class="descname">with_velocity_convention</code><span class="sig-paren">(</span><em>velocity_convention</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/specutils/spectra/spectrum_mixin.html#OneDSpectrumMixin.with_velocity_convention"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#specutils.spectra.spectrum_mixin.OneDSpectrumMixin.with_velocity_convention" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">OneDSpectrumMixin</a></li>
+</ul>
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="../_sources/api/specutils.spectra.spectrum_mixin.OneDSpectrumMixin.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2018, Nicholas Earl.<br/>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5. &nbsp;
+    Last built 19 Sep 2018. <br/>
+  </p>
+</footer>
+  </body>
+</html>

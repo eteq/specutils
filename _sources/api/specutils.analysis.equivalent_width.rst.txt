@@ -1,0 +1,6 @@
+equivalent_width
+================
+
+.. currentmodule:: specutils.analysis
+
+.. autofunction:: equivalent_width

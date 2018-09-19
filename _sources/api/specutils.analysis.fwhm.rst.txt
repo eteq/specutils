@@ -1,0 +1,6 @@
+fwhm
+====
+
+.. currentmodule:: specutils.analysis
+
+.. autofunction:: fwhm

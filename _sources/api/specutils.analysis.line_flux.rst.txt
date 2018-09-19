@@ -1,0 +1,6 @@
+line_flux
+=========
+
+.. currentmodule:: specutils.analysis
+
+.. autofunction:: line_flux

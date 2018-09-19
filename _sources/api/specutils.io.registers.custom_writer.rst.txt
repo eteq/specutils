@@ -1,0 +1,6 @@
+custom_writer
+=============
+
+.. currentmodule:: specutils.io.registers
+
+.. autofunction:: custom_writer
