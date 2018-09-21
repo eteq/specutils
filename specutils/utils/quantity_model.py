@@ -1,6 +1,6 @@
-__all__ = ['QuantityModel']
-
 from astropy import units as u
+
+__all__ = ['QuantityModel']
 
 
 class QuantityModel:
