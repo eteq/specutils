@@ -85,7 +85,7 @@ that takes the spectrum and an astropy 1D kernel.  So, one could also do:
 In this case, the ``spec1_bsmooth2`` result should be equivalent to the ``spec1_bsmooth`` in
 the section above (assuming the flux data of the input ``spec`` is the same).
 
-The uncertainties are propagated using a standard "propagation of errors" method, if the uncertainty 
+The uncertainties are propagated using a standard "propagation of errors" method, if the uncertainty
 is defined for the spectrum *and* it is one of StdDevUncertainty, VarianceUncertainty or InverseVariance.
 But note that this does *not* consider covariance between points.
 
@@ -99,7 +99,7 @@ method applys the median filter across the flux.
 
 .. note::
     This method is not flux conserving and errors are not propagated.
-    
+
 
 .. code-block:: python
 
@@ -246,42 +246,37 @@ Or similarly, expressed in pixels:
     >>> spec_w_unc.uncertainty # doctest: +ELLIPSIS
     StdDevUncertainty([0.18714535, ..., 0.18714535])
 
-S/N Threshold Mask
-------------------
+S/N Thresholding and Masking
+----------------------------
 
-It is useful to be able to find all the spaxels in an ND spectrum
-in which the signal to noise ratio is greater than some threshold.
-This method implements this functionality so that a `~specutils.Spectrum1D`
-object, `~specutils.SpectrumCollection` or an :class:`~astropy.nddata.NDData` derived
-object may be passed in as the first parameter. The second parameter
-is a floating point threshold. 
-
-For example, first a spectrum with flux and uncertainty is created, and 
-then call the ``snr_threshold`` method:
+In some science use cases, it is important to identify the all the pixels in a
+spectrum where the signal to noise ratio is greater than some threshold.
+`specutils.manipulation.snr_threshold` implements this functionality so that a
+`~specutils.Spectrum1D` object, `~specutils.SpectrumCollection` or an
+:class:`~astropy.nddata.NDData` derived object may have this operation done on
+it. For example, starting from the spectrum above:
 
 .. code-block:: python
 
-    >>> import numpy as np
-    >>> from astropy.nddata import StdDevUncertainty
-    >>> import astropy.units as u
-    >>> from specutils import Spectrum1D
     >>> from specutils.manipulation import snr_threshold
-    >>> np.random.seed(42)
-    >>> wavelengths = np.arange(0, 10)*u.um
-    >>> flux = 100*np.abs(np.random.randn(10))*u.Jy
-    >>> uncertainty = StdDevUncertainty(np.abs(np.random.randn(10))*u.Jy)
-    >>> spectrum = Spectrum1D(spectral_axis=wavelengths, flux=flux, uncertainty=uncertainty)
-    >>> spectrum_masked = snr_threshold(spectrum, 50) #doctest:+SKIP
-    >>> # To create a masked flux array
-    >>> flux_masked = spectrum_masked.flux
+    >>> spectrum_masked = snr_threshold(spec_w_unc, 10)
+    >>> spectrum_masked.mask # doctest: +ELLIPSIS
+    array([False, ..., True, ..., False])
+    >>> np.sum(spectrum_masked.mask)/len(spectrum_masked.mask)
+    0.16
+
+The output  ``spectrum_masked`` here is a new `~specutils.Spectrum1D` object
+that is a shallow copy of the input ``spectrum`` with the ``mask`` attribute
+set for pixels that meet the threshold.  Note that this mask follows the
+`conventions for NDData <http://docs.astropy.org/en/stable/nddata/nddata.html#mask>`_
+such that False means "is not masked" - i.e., the inverse of the convention
+used for directly indexing numpy arrays.  For example, to create a nan-masked
+array, the following can be used:
+
+.. code-block:: python
+
+    >>> flux_masked = spectrum_masked.flux.copy()
     >>> flux_masked[spectrum_masked.mask] = np.nan
-
-The output ``spectrum_masked`` is a shallow copy of the input ``spectrum``
-with the ``mask`` attribute set to True where the S/N is greater than 50
-and False elsewhere.
-
-.. note:: The mask attribute is the only attribute modified by ``snr_threshold()``. To
-             retrieve the masked flux data use ``spectrum.masked.flux_masked``.
 
 Reference/API
 -------------
