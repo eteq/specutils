@@ -58,5 +58,3 @@ def test_correlation():
     maximum = np.argmax(corr_result.flux)
     assert maximum == 35
     np.testing.assert_almost_equal(corr_result.spectral_axis[maximum].value, -4., 0.1)
-
-

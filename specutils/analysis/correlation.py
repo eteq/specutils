@@ -68,4 +68,3 @@ def template_correlate(observed_spectrum, template_spectrum):
                                       flux=corr * u.dimensionless_unscaled)
 
     return correlation_function
-
