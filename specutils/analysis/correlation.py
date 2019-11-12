@@ -44,7 +44,7 @@ def template_correlate(observed_spectrum, template_spectrum):
 
     Returns
     -------
-    tuple : (`~astropy.units.Quantity`, `~astropy.units.Quantity`)
+    (`~astropy.units.Quantity`, `~astropy.units.Quantity`)
         Arrays with correlation values and lags in km/s
     """
     # Normalize template
@@ -62,4 +62,3 @@ def template_correlate(observed_spectrum, template_spectrum):
     lag = observed_spectrum.spectral_axis.to(u.km / u.s, equivalencies=equiv)
 
     return (corr * u.dimensionless_unscaled, lag)
-
