@@ -25,7 +25,7 @@ env:
         - ASTROPY_VERSION=3.2
         - MAIN_CMD='python setup.py'
         - SETUP_CMD='test --remote-data=any'
-        - PIP_DEPENDENCIES='gwcs scipy matplotlib'
+        - PIP_DEPENDENCIES='gwcs<0.12 scipy matplotlib'
         - EVENT_TYPE='pull_request push'
         - CONDA_DEPENDENCIES='pytest-remotedata'
         - GWCS_DEV="git+https://github.com/spacetelescope/gwcs.git#egg=gwcs"
