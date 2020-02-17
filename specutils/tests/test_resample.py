@@ -8,6 +8,11 @@ from ..spectra.spectrum1d import Spectrum1D
 from ..tests.spectral_examples import simulated_spectra
 from ..manipulation.resample import FluxConservingResampler, LinearInterpolatedResampler, SplineInterpolatedResampler
 
+
+@pytest.fixture(params=[FluxConservingResampler, LinearInterpolatedResampler, SplineInterpolatedResampler])
+def all_resamplers(request):
+    return request.param
+
 # todo: Should add tests for different weighting options once those
 # are more solidified.
 
@@ -38,7 +43,7 @@ def test_expanded_grid_fluxconserving():
     flux_val = np.array([1, 3, 7, 6, 20])
     wave_val = np.array([2, 4, 12, 16, 20])
     input_spectra = Spectrum1D(flux=flux_val * u.mJy, spectral_axis=wave_val * u.nm)
-    resamp_grid = np.array([1, 5, 9, 13, 14, 17, 21, 22, 23])
+    resamp_grid = [1, 5, 9, 13, 14, 17, 21, 22, 23] * u.nm
 
     inst = FluxConservingResampler()
     results = inst(input_spectra, resamp_grid)
@@ -57,7 +62,7 @@ def test_stddev_uncert_propogation():
                                uncertainty=StdDevUncertainty([0.1, 0.25, 0.1, 0.25, 0.1]))
 
     inst = FluxConservingResampler()
-    results = inst(input_spectra, np.array([25, 35, 50, 55]))
+    results = inst(input_spectra, [25, 35, 50, 55]*u.AA)
 
     assert np.allclose(results.uncertainty.array,
                        np.array([27.5862069, 38.23529412, 17.46724891, 27.5862069]))
@@ -117,7 +122,7 @@ def test_multi_dim_spectrum1D():
                       uncertainty=StdDevUncertainty(flux_2d / 10))
 
     inst = FluxConservingResampler()
-    results = inst(input_spectra, np.array([5001, 5003, 5005, 5007]))
+    results = inst(input_spectra, [5001, 5003, 5005, 5007] * u.AA)
 
     assert_quantity_allclose(results.flux,
                             np.array([[5., 5., 5., 5.],
@@ -137,7 +142,7 @@ def test_expanded_grid_interp_linear():
     flux_val = np.array([1, 3, 7, 6, 20])
     wave_val = np.array([2, 4, 12, 16, 20])
     input_spectra = Spectrum1D(spectral_axis=wave_val * u.AA, flux=flux_val * u.mJy)
-    resamp_grid = np.array([1, 5, 9, 13, 14, 17, 21, 22, 23])
+    resamp_grid = [1, 5, 9, 13, 14, 17, 21, 22, 23] * u.AA
 
     inst = LinearInterpolatedResampler()
     results = inst(input_spectra, resamp_grid)
@@ -154,7 +159,7 @@ def test_expanded_grid_interp_spline():
     flux_val = np.array([1, 3, 7, 6, 20])
     wave_val = np.array([2, 4, 12, 16, 20])
     input_spectra = Spectrum1D(spectral_axis=wave_val * u.AA, flux=flux_val * u.mJy)
-    resamp_grid = np.array([1, 5, 9, 13, 14, 17, 21, 22, 23])
+    resamp_grid = [1, 5, 9, 13, 14, 17, 21, 22, 23] * u.AA
 
     inst = SplineInterpolatedResampler()
     results = inst(input_spectra, resamp_grid)
@@ -162,3 +167,50 @@ def test_expanded_grid_interp_spline():
     assert_quantity_allclose(results.flux,
                             np.array([np.nan, 3.98808594, 6.94042969, 6.45869141,
                                       5.89921875, 7.29736328, np.nan, np.nan, np.nan])*u.mJy)
+
+
+@pytest.mark.parametrize("edgetype,lastvalue",
+                         [("nan_fill", np.nan), ("zero_fill", 0)])
+def test_resample_edges(edgetype, lastvalue, all_resamplers):
+    input_spectrum = Spectrum1D(spectral_axis=[2, 4, 12, 16, 20] * u.micron,
+                                flux=[1, 3, 7, 6, 20] * u.mJy)
+    resamp_grid = [1, 3, 7, 6, 20, 100] * u.micron
+
+    resampler = all_resamplers(edgetype)
+    resampled = resampler(input_spectrum, resamp_grid)
+    if lastvalue is np.nan:
+        assert np.isnan(resampled.flux[-1])
+    else:
+        assert resampled.flux[-1] == lastvalue
+
+
+def test_resample_different_units(all_resamplers):
+    input_spectrum = Spectrum1D(spectral_axis=[5000, 6000 ,7000] * u.AA,
+                                flux=[1, 2, 3] * u.mJy)
+    resampler = all_resamplers("nan_fill")
+    if all_resamplers == FluxConservingResampler:
+        pytest.xfail('flux conserving resampler cannot yet handle differing units')
+
+
+    resamp_grid = [5500, 6500]*u.nm
+    resampled = resampler(input_spectrum, resamp_grid)
+    assert np.all(np.isnan(resampled.flux))
+
+    resamp_grid = [550, 650]*u.nm
+    resampled = resampler(input_spectrum, resamp_grid)
+    assert not np.any(np.isnan(resampled.flux))
+
+
+def test_resample_uncs(all_resamplers):
+    sdunc = StdDevUncertainty([0.1,0.2, 0.3]*u.mJy)
+    input_spectrum = Spectrum1D(spectral_axis=[5000, 6000 ,7000] * u.AA,
+                                flux=[1, 2, 3] * u.mJy,
+                                uncertainty=sdunc)
+
+    resampled = all_resamplers()(input_spectrum, [5500, 6500]*u.AA)
+    if all_resamplers == FluxConservingResampler:
+        # special-cased because it switches the unc to inverse variance by construction
+        assert resampled.uncertainty.unit == sdunc.unit**-2
+    else:
+        assert resampled.uncertainty.unit == sdunc.unit
+        assert resampled.uncertainty.uncertainty_type == sdunc.uncertainty_type

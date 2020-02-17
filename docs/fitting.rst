@@ -157,8 +157,8 @@ Then estimate the line  parameters it it for a Gaussian line profile::
       Parameters:
               amplitude            mean             stddev
                   Jy                um                um
-          ------------------ ---------------- ------------------
-          1.1845669151078486 4.57517271067525 0.3199324375933905
+          ------------------ ---------------- -------------------
+          1.1845669151078486 4.57517271067525 0.19373372929165977
 
 
 If an `~astropy.modeling.Model` is used that does not have the predefined
@@ -166,9 +166,9 @@ parameter estimators, or if one wants to use different parameter estimators then
 one can create a dictionary where the key is the parameter name and the value is
 a function that operates on a spectrum (lambda functions are very useful for
 this purpose). For example if one wants to estimate the line parameters of a
-line fit for a `~astropy.modeling.functional_models.MexicanHat1D` one can
-define the ``estimators`` dictionary and attach in the model's ``_constraints``
-dictionary:
+line fit for a `~astropy.modeling.functional_models.RickerWavelet1D` one can
+define the ``estimators`` dictionary and use it to populate the ``estimator``
+attribute of the model's parameters:
 
 .. code-block:: python
 
@@ -180,26 +180,22 @@ dictionary:
    >>> sub_region = SpectralRegion(4*u.um, 5*u.um)
    >>> sub_spectrum = extract_region(spectrum, sub_region)
 
-   >>> mh = models.MexicanHat1D()
-   >>> estimators = { 'amplitude': lambda s: max(s.flux), 'x_0': lambda s: centroid(s, region=None), 'stddev': lambda s: fwhm(s) }
-   >>> mh._constraints['parameter_estimator'] = estimators
+   >>> ricker = models.RickerWavelet1D()
+   >>> ricker.amplitude.estimator = lambda s: max(s.flux)
+   >>> ricker.x_0.estimator = lambda s: centroid(s, region=None)
+   >>> ricker.sigma.estimator = lambda s: fwhm(s)
 
-   >>> print(estimate_line_parameters(spectrum, mh))  # doctest:+FLOAT_CMP
-   Model: MexicanHat1D
+   >>> print(estimate_line_parameters(spectrum, ricker))  # doctest:+FLOAT_CMP
+   Model: RickerWavelet1D
    Inputs: ('x',)
    Outputs: ('y',)
    Model set size: 1
    Parameters:
-           amplitude             x_0         sigma
-               Jy                 um
-       ------------------ ------------------ -----
-       2.4220683957581444 3.6045476935889367   1.0
+           amplitude             x_0                sigma
+              Jy                 um                  um
+      ------------------ ------------------ -------------------
+      2.4220683957581444 3.6045476935889367 0.24416769183724707
 
-.. warning::
-   Be aware the use of ``_constraints`` to store the estimators may change in
-   future versions of astropy or specutils to something more natural (i.e., not
-   a "private" attribute), as this is a workaround for a known limitation in
-   `astropy.modeling`.
 
 Model (Line) Fitting
 --------------------
@@ -681,7 +677,7 @@ fitted continuum, which returns a new object:
     plt.title('Continuum normalized spectrum')
     plt.grid('on')
 
-    
+
 Reference/API
 -------------
 
