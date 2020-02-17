@@ -17,15 +17,18 @@ __all__ = ['wcs1d_fits_loader', 'wcs1d_fits_writer', 'non_linear_wcs1d_fits']
 def identify_wcs1d_fits(origin, *args, **kwargs):
     # check if file can be opened with this reader
     # args[0] = filename
-    return (isinstance(args[0], str) and
-            os.path.splitext(args[0].lower())[1] == '.fits' and
+    with fits.open(args[0]) as hdu:
+        if (
             # check if number of axes is one
-            fits.getheader(args[0])['NAXIS'] == 1 and
-            fits.getheader(args[0])['WCSDIM'] == 1 and
-            'WAT1_001' not in fits.getheader(args[0]) and
+            hdu[0].header['NAXIS'] == 1 and
+            hdu[0].header.get('WCSDIM', 1) == 1 and
+            'WAT1_001' not in hdu[0].header and
             # check if CTYPE1 kep is in the header
-            'CTYPE1' in fits.getheader(args[0])
-            )
+            'CTYPE1' in hdu[0].header
+            ):
+            return True
+
+    return False
 
 
 @data_loader("wcs1d-fits", identifier=identify_wcs1d_fits,
@@ -87,8 +90,11 @@ def identify_iraf_wcs(origin, *args):
     The difference of this with respect to wcs1d is that this can work with
     WCSDIM == 2
     """
-    return (isinstance(args[0], str) and
-            'WAT1_001' in fits.getheader(args[0]))
+    return (fits.connect.is_fits(origin, *args) and
+            'WAT1_001' in fits.getheader(args[0]) and
+            not (fits.getheader(args[0])['TELESCOP'] == 'SDSS 2.5-M' and
+                 fits.getheader(args[0])['FIBERID'] > 0)
+            )
 
 
 @data_loader('iraf', identifier=identify_iraf_wcs, dtype=Spectrum1D,
@@ -130,7 +136,6 @@ def non_linear_wcs1d_fits(file_name, spectral_axis_unit=None, flux_unit=None,
                 logging.info("linear Solution: Try using "
                              "`format='wcs1d-fits'` instead")
                 wcs = WCS(header)
-
                 spectral_axis = _read_linear_iraf_wcs(wcs=wcs,
                                                       dc_flag=header['DC-FLAG'])
             elif ctypen == 'MULTISPE':
@@ -161,7 +166,6 @@ def non_linear_wcs1d_fits(file_name, spectral_axis_unit=None, flux_unit=None,
                 spectral_axis *= u.angstrom
 
         meta = {'header': header}
-
     return Spectrum1D(flux=data, spectral_axis=spectral_axis, meta=meta)
 
 
@@ -433,9 +437,8 @@ def _chebyshev(wcs_dict):
                                domain=[wcs_dict['pmin'],
                                        wcs_dict['pmax']], )
 
-    for param_index in range(wcs_dict['order']):
-        model.parameters[param_index] = wcs_dict['fpar'][
-            param_index]
+    new_params = [wcs_dict['fpar'][i] for i in range(wcs_dict['order'])]
+    model.parameters = new_params
 
     return model
 
@@ -462,9 +465,8 @@ def _non_linear_legendre(wcs_dict):
                               domain=[wcs_dict['pmin'],
                                       wcs_dict['pmax']], )
 
-    for param_index in range(wcs_dict['order']):
-        model.parameters[param_index] = wcs_dict['fpar'][
-            param_index]
+    new_params = [wcs_dict['fpar'][i] for i in range(wcs_dict['order'])]
+    model.parameters = new_params
 
     return model
 

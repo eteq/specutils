@@ -1,21 +1,23 @@
-import operator
 import itertools
 import logging
+import operator
 
+import astropy.units as u
 import numpy as np
+from astropy.modeling import fitting, Model, models
+from astropy.table import QTable
 from scipy.signal import convolve
+
+
 import astropy.units as u
 from astropy.stats import sigma_clipped_stats
 
-from ..manipulation.utils import excise_regions
-from ..analysis import fwhm, centroid, warn_continuum_below_threshold
-from ..utils import QuantityModel
-from ..manipulation import extract_region, noise_region_uncertainty
 from ..spectra.spectral_region import SpectralRegion
 from ..spectra.spectrum1d import Spectrum1D
-from astropy.modeling import fitting, Model, models
-from astropy.table import QTable
-
+from ..utils import QuantityModel
+from ..analysis import fwhm, gaussian_sigma_width, centroid, warn_continuum_below_threshold
+from ..manipulation import extract_region, noise_region_uncertainty
+from ..manipulation.utils import excise_regions
 
 __all__ = ['find_lines_threshold', 'find_lines_derivative', 'fit_lines',
            'estimate_line_parameters']
@@ -30,7 +32,7 @@ _parameter_estimators = {
     'Gaussian1D': {
         'amplitude': lambda s: max(s.flux),
         'mean': lambda s: centroid(s, region=None),
-        'stddev': lambda s: fwhm(s)
+        'stddev': lambda s: gaussian_sigma_width(s)
     },
     'Lorentz1D': {
         'amplitude': lambda s: max(s.flux),
@@ -51,8 +53,10 @@ def _set_parameter_estimators(model):
     Helper method used in method below.
     """
     if model.__class__.__name__ in _parameter_estimators:
-        model._constraints['parameter_estimator'] = _parameter_estimators[
-            model.__class__.__name__]
+        model_pars = _parameter_estimators[model.__class__.__name__]
+        for name in model.param_names:
+            par = getattr(model, name)
+            setattr(par, "estimator", model_pars[name])
 
     return model
 
@@ -77,18 +81,16 @@ def estimate_line_parameters(spectrum, model):
         Model with parameters estimated.
     """
 
-    if not 'parameter_estimator' in model._constraints:
-        model = _set_parameter_estimators(model)
-
+    model = _set_parameter_estimators(model)
     # Estimate the parameters based on the estimators already
     # attached to the model
-    if 'parameter_estimator' in model._constraints:
-        for param, estimator in model._constraints['parameter_estimator'].items():
-            setattr(model, param, estimator(spectrum))
-
-    # No estimators.
-    else:
-        raise Exception('No method to estimate parameters')
+    for name in model.param_names:
+        par = getattr(model, name)
+        try:
+            estimator = getattr(par, "estimator")
+            setattr(model, name, estimator(spectrum))
+        except AttributeError:
+            raise Exception('No method to estimate parameter {}'.format(name))
 
     return model
 
@@ -286,10 +288,12 @@ def fit_lines(spectrum, model, fitter=fitting.LevMarLSQFitter(),
         Fitter instance to be used when fitting model to spectrum.
     exclude_regions : list of `~specutils.SpectralRegion`
         List of regions to exclude in the fitting.
-    weights : list or 'unc', optional
+    weights : array-like or 'unc', optional
         If 'unc', the unceratinties from the spectrum object are used to
-        to calculate the weights. If list/ndarray, represents the weights to
-        use in the fitting.
+        to calculate the weights. If array-like, represents the weights to
+        use in the fitting.  Note that if a mask is present on the spectrum, it
+        will be applied to the ``weights`` as it would be to the spectrum
+        itself.
     window : `~specutils.SpectralRegion` or list of `~specutils.SpectralRegion`
         Regions of the spectrum to use in the fitting. If None, then the
         whole spectrum will be used in the fitting.
@@ -403,11 +407,14 @@ def _fit_lines(spectrum, model, fitter=fitting.LevMarLSQFitter(),
         # Assume that the weights argument is list-like
         weights = np.array(weights)
 
+    mask = spectrum.mask
+
     dispersion = spectrum.spectral_axis
     dispersion_unit = spectrum.spectral_axis.unit
 
     flux = spectrum.flux
     flux_unit = spectrum.flux.unit
+
 
     #
     # Determine the window if it is not None.  There
@@ -422,40 +429,51 @@ def _fit_lines(spectrum, model, fitter=fitting.LevMarLSQFitter(),
     #
 
     # In this case the window defines the area around the center of each model
+    window_indices = None
     if window is not None and isinstance(window, (float, int)):
         center = model.mean
-        indices = np.nonzero((spectrum.spectral_axis >= center-window) &
-                             (spectrum.spectral_axis < center+window))
-
-        dispersion = dispersion[indices]
-        flux = flux[indices]
-
-        if weights is not None:
-            weights = weights[indices]
+        window_indices = np.nonzero((spectrum.spectral_axis >= center-window) &
+                                    (spectrum.spectral_axis < center+window))
 
     # In this case the window is the start and end points of where we
     # should fit
     elif window is not None and isinstance(window, tuple):
-        indices = np.nonzero((dispersion >= window[0]) &
+        window_indices = np.nonzero((dispersion >= window[0]) &
                              (dispersion < window[1]))
 
-        dispersion = dispersion[indices]
-        flux = flux[indices]
-
-        if weights is not None:
-            weights = weights[indices]
-
+    # in this case the window is spectral regions that determine where
+    # to fit.
     elif window is not None and isinstance(window, SpectralRegion):
-        try:
-            idx1, idx2 = window.bounds
-            if idx1 == idx2:
-                raise Exception("Bad selected region.")
-            extracted_regions = extract_region(spectrum, window)
-            dispersion, flux = _combined_region_data(extracted_regions)
-            dispersion = dispersion * dispersion_unit
-            flux = flux * flux_unit
-        except ValueError as e:
-            return
+        idx1, idx2 = window.bounds
+        if idx1 == idx2:
+            raise IndexError("Tried to fit a region containing no pixels.")
+
+        # HACK WARNING! This uses the extract machinery to create a set of
+        # indices by making an "index spectrum"
+        # note that any unit will do but Jy is at least flux-y
+        # TODO: really the spectral region machinery should have the power
+        # to create a mask, and we'd just use that...
+        idxarr = np.arange(spectrum.flux.size).reshape(spectrum.flux.shape)
+        index_spectrum = Spectrum1D(spectral_axis=spectrum.spectral_axis,
+                                    flux=u.Quantity(idxarr, u.Jy, dtype=int))
+
+        extracted_regions = extract_region(index_spectrum, window)
+        if isinstance(extracted_regions, list):
+            if len(extracted_regions) == 0:
+                raise ValueError('The whole spectrum is windowed out!')
+            window_indices = np.concatenate([s.flux.value.astype(int) for s in extracted_regions])
+        else:
+            if len(extracted_regions.flux) == 0:
+                raise ValueError('The whole spectrum is windowed out!')
+            window_indices = extracted_regions.flux.value.astype(int)
+
+    if window_indices is not None:
+        dispersion = dispersion[window_indices]
+        flux = flux[window_indices]
+        if mask is not None:
+            mask = mask[window_indices]
+        if weights is not None:
+            weights = weights[window_indices]
 
     if flux is None or len(flux) == 0:
         raise Exception("Spectrum flux is empty or None.")
@@ -482,6 +500,12 @@ def _fit_lines(spectrum, model, fitter=fitting.LevMarLSQFitter(),
     #
     # Do the fitting of spectrum to the model.
     #
+    if mask is not None:
+        nmask = ~mask
+        dispersion_unitless = dispersion_unitless[nmask]
+        flux_unitless = flux_unitless[nmask]
+        if weights is not None:
+            weights = weights[nmask]
 
     fit_model_unitless = fitter(model_unitless, dispersion_unitless,
                                 flux_unitless, weights=weights, **kwargs)
@@ -498,26 +522,6 @@ def _fit_lines(spectrum, model, fitter=fitting.LevMarLSQFitter(),
                                   spectrum.flux.unit)
 
     return fit_model
-
-
-def _combined_region_data(spec):
-    if isinstance(spec, list):
-
-        # Merge sub-spec spectral_axis and flux values.
-        x = np.array([sv for subspec in spec if subspec is not None
-                         for sv in subspec.spectral_axis.value])
-        y = np.array([sv for subspec in spec if subspec is not None
-                         for sv in subspec.flux.value])
-    else:
-        if spec is None:
-            return
-        x = spec.spectral_axis.value
-        y = spec.flux.value
-
-    if len(x) == 0:
-        return
-
-    return x, y
 
 
 def _convert(quantity, dispersion_unit, dispersion, flux_unit):
@@ -604,8 +608,7 @@ def _strip_units_from_model(model_in, spectrum, convert=True):
     #
     # Determine if a compound model
     #
-
-    compound_model = model_in.n_submodels() > 1
+    compound_model = model_in.n_submodels > 1
 
     if not compound_model:
         # For this we are going to just make it a list so that we
@@ -615,8 +618,7 @@ def _strip_units_from_model(model_in, spectrum, convert=True):
         # If it is a compound model then we are going to create the RPN
         # representation of it which is a list that contains either astropy
         # models or string representations of operators (e.g., '+' or '*').
-        model_in = [c.value for c in model_in._tree.traverse_postorder()]
-
+        model_in = model_in.traverse_postorder(include_operator=True)
     #
     # Run through each model in the list or compound model
     #
@@ -654,15 +656,14 @@ def _strip_units_from_model(model_in, spectrum, convert=True):
             # Add this information for the parameter name into the
             # new sub model.
             #
-
             setattr(new_sub_model, pn, v)
 
             #
             # Copy over all the constraints (e.g., tied, fixed...)
             #
-            for k, v in sub_model._constraints.items():
-                new_sub_model._constraints[k] = v
-
+            for constraint in ('tied', 'fixed'):
+                for k, v in getattr(sub_model, constraint).items():
+                    getattr(new_sub_model, constraint)[k] = v
             #
             # Convert teh bounds parameter
             #
@@ -713,15 +714,15 @@ def _add_units_to_model(model_in, model_orig, spectrum):
     # list so we can use the for loop below.
     #
 
-    compound_model = model_in.n_submodels() > 1
+    compound_model = model_in.n_submodels > 1
     if not compound_model:
         model_in_list = [model_in]
         model_orig_list = [model_orig]
     else:
         compound_model_in = model_in
 
-        model_in_list = [c.value for c in model_in._tree.traverse_postorder()]
-        model_orig_list = [c.value for c in model_orig._tree.traverse_postorder()]
+        model_in_list = model_in.traverse_postorder(include_operator=True)
+        model_orig_list = model_orig.traverse_postorder(include_operator=True)
 
     model_out_stack = []
     model_index = 0
@@ -830,8 +831,9 @@ def _add_units_to_model(model_in, model_orig, spectrum):
             #
             # Copy over all the constraints (e.g., tied, fixed, bounds...)
             #
-            for k, v in m_orig._constraints.items():
-                new_sub_model._constraints[k] = v
+            for constraint in ('tied', 'bounds', 'fixed'):
+                for k, v in getattr(m_orig, constraint).items():
+                    getattr(new_sub_model, constraint)[k] = v
 
         #
         # Add the new unit-filled model onto the stack.
