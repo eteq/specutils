@@ -1,14 +1,14 @@
-import numpy as np
-
 import astropy.units as u
+import numpy as np
 from astropy.modeling import models
 from astropy.nddata import StdDevUncertainty
+from astropy.tests.helper import assert_quantity_allclose
 
-from ..spectra import Spectrum1D, SpectralRegion
+from ..analysis import fwhm, centroid
 from ..fitting import (fit_lines, find_lines_derivative,
                        find_lines_threshold, estimate_line_parameters)
-from ..analysis import fwhm, centroid
 from ..manipulation import noise_region_uncertainty, spectrum_from_model
+from ..spectra import Spectrum1D, SpectralRegion
 
 
 def single_peak():
@@ -101,13 +101,16 @@ def test_single_peak_estimate():
 
     #
     # Estimate parameter Gaussian1D
+    # we give the true values for the Gaussian because it actually *should*
+    # be pretty close to the true values, because it's a Gaussian...
     #
 
     g_init = estimate_line_parameters(s_single, models.Gaussian1D())
 
-    assert np.isclose(g_init.amplitude.value, 3.354169257846847)
-    assert np.isclose(g_init.mean.value, 6.218588636687762)
-    assert np.isclose(g_init.stddev.value, 1.6339001193853715)
+
+    assert np.isclose(g_init.amplitude.value, 3., rtol=.2)
+    assert np.isclose(g_init.mean.value, 6.3, rtol=.1)
+    assert np.isclose(g_init.stddev.value, 0.8, rtol=.3)
 
     assert g_init.amplitude.unit == u.Jy
     assert g_init.mean.unit == u.um
@@ -115,6 +118,9 @@ def test_single_peak_estimate():
 
     #
     # Estimate parameter Lorentz1D
+    # unlike the Gaussian1D here we do hand-picked comparison values, because
+    # the "single peak" is a Gaussian and therefore the Lorentzian fit shouldn't
+    # be quite right anyway
     #
 
     g_init = estimate_line_parameters(s_single, models.Lorentz1D())
@@ -145,25 +151,28 @@ def test_single_peak_estimate():
 
 
     #
-    # Estimate parameter MexicanHat1D
+    # Estimate parameter RickerWavelet1D
     #
-    mh = models.MexicanHat1D()
+    mh = models.RickerWavelet1D
     estimators = {
         'amplitude': lambda s: max(s.flux),
         'x_0': lambda s: centroid(s, region=None),
-        'stddev': lambda s: fwhm(s)
+        'sigma': lambda s: fwhm(s)
     }
-    mh._constraints['parameter_estimator'] = estimators
+    #mh._constraints['parameter_estimator'] = estimators
+    mh.amplitude.estimator = lambda s: max(s.flux)
+    mh.x_0.estimator = lambda s: centroid(s, region=None)
+    mh.sigma.estimator = lambda s: fwhm(s)
 
     g_init = estimate_line_parameters(s_single, mh)
 
     assert np.isclose(g_init.amplitude.value, 3.354169257846847)
     assert np.isclose(g_init.x_0.value, 6.218588636687762)
-    assert np.isclose(g_init.stddev.value, 1.6339001193853715)
+    assert np.isclose(g_init.sigma.value, 1.6339001193853715)
 
     assert g_init.amplitude.unit == u.Jy
     assert g_init.x_0.unit == u.um
-    assert g_init.stddev.unit == u.um
+    assert g_init.sigma.unit == u.um
 
 
 def test_single_peak_fit():
@@ -466,13 +475,13 @@ def test_fixed_parameters():
 
     g_fit = fit_lines(spectrum, g_init)
 
-    assert g_fit.mean == 6.1*u.um
+    assert_quantity_allclose(g_fit.mean, 6.1*u.um)
     assert g_fit.bounds == g_init.bounds
     assert g_fit.name == "Gaussian Test Model"
 
     # Test passing of tied parameter
-    g_init = models.Gaussian1D(amplitude=3.*u.Jy, mean=6.1*u.um, stddev=1.*u.um,
-                               tied={'mean': tie_center})
+    g_init = models.Gaussian1D(amplitude=3.*u.Jy, mean=6.1*u.um, stddev=1.*u.um)
+    g_init.mean.tied = tie_center
     g_fit = fit_lines(spectrum, g_init)
 
     assert g_fit.tied == g_init.tied
@@ -617,3 +626,55 @@ def test_spectrum_from_model():
                               1.5319218, 1.06886794, 0.71101768, 0.45092638, 0.27264641])
 
     assert np.allclose(spectrum_gaussian.flux.value[::10], flux_expected, atol=1e-5)
+
+
+def test_masking():
+    """
+    Test fitting spectra with masks
+    """
+    wl, flux = double_peak()
+    s = Spectrum1D(flux=flux*u.Jy, spectral_axis=wl*u.um)
+
+    # first we fit a single gaussian to the double_peak model, using the
+    # known-good second peak (but a bit higher in amplitude). It should lock
+    # in on the *second* peak since it's already close:
+    g_init = models.Gaussian1D(2.5, 5.5, 0.2)
+    g_fit1 = fit_lines(s, g_init)
+    assert u.allclose(g_fit1.mean, 5.5, atol=.1)
+
+    # now create a spectrum where the region around the second peak is masked.
+    # The fit should now go to the *first* peak
+    s_msk = Spectrum1D(flux=flux*u.Jy, spectral_axis=wl*u.um, mask=(5.1 < wl)&(wl < 6.1))
+    g_fit2 = fit_lines(s_msk, g_init)
+    assert u.allclose(g_fit2.mean, 4.6, atol=.1)
+
+    # double check that it works with weights as well
+    g_fit3 = fit_lines(s_msk, g_init, weights=np.ones_like(s_msk.flux.value))
+    assert g_fit2.mean == g_fit3.mean
+
+
+def test_window_extras():
+    """
+    Test that fitting works with masks and weights when a window is present
+    """
+    # similar to the masking test, but add a broad window around the whole thing
+    wl, flux = double_peak()
+    g_init = models.Gaussian1D(2.5, 5.5, 0.2)
+    window_region = SpectralRegion(4*u.um, 8*u.um)
+    mask = (5.1 < wl) & (wl < 6.1)
+
+    s_msk = Spectrum1D(flux=flux*u.Jy, spectral_axis=wl*u.um, mask=mask)
+
+    g_fit1 = fit_lines(s_msk, g_init, window=window_region)
+    assert u.allclose(g_fit1.mean, 4.6, atol=.1)
+
+    # check that if we weight instead of masking, we get the same result
+    s = Spectrum1D(flux=flux*u.Jy, spectral_axis=wl*u.um)
+    weights = (~mask).astype(float)
+    g_fit2 = fit_lines(s, g_init, weights=weights, window=window_region)
+    assert u.allclose(g_fit2.mean, 4.6, atol=.1)
+
+    # and the same with both together
+    weights = (~mask).astype(float)
+    g_fit3 = fit_lines(s_msk, g_init, weights=weights, window=window_region)
+    assert u.allclose(g_fit3.mean, 4.6, atol=.1)
