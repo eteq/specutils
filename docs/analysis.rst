@@ -248,14 +248,8 @@ value set.
     >>> flux1 = f1 + g1(spec_axis)
     >>> flux2 = f2 + g2(spec_axis)
     >>> uncertainty = StdDevUncertainty(0.2*np.ones(size)*u.Jy)
-    >>> ospec = Spectrum1D(spectral_axis=spec_axis, \
-                           flux=flux1, \
-                           uncertainty=uncertainty, \
-                           velocity_convention='optical', \
-                           rest_value=rest_value)
-    >>> tspec = Spectrum1D(spectral_axis=spec_axis, \
-                           flux=flux2, \
-                           uncertainty=uncertainty)
+    >>> ospec = Spectrum1D(spectral_axis=spec_axis, flux=flux1, uncertainty=uncertainty, velocity_convention='optical', rest_value=rest_value)
+    >>> tspec = Spectrum1D(spectral_axis=spec_axis, flux=flux2, uncertainty=uncertainty)
     >>> corr, lag = correlation.template_correlate(ospec, tspec)
 
 The lag values are reported in km/s units. The correlation values are computed after the template spectrum is
