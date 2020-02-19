@@ -236,7 +236,7 @@ value set.
 
 .. code-block:: python
 
-    >>> spec_axis = np.linspace(4500., 6500., num=size) * u.AA
+    >>> spec_axis = np.linspace(4500., 6500., num=200) * u.AA
     >>> f1 = np.random.randn(size)*0.5 * u.Jy
     >>> f2 = np.random.randn(size)*0.5 * u.Jy
     >>> rest_value = 6000. * u.AA
