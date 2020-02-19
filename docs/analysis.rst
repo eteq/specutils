@@ -243,12 +243,11 @@ value set.
     >>> rest_value = 6000. * u.AA
     >>> mean1 = 5035. * u.AA
     >>> mean2 = 5015. * u.AA
-    >>> expected_lag = (mean1 - mean2) / rest_value * const.c.to('km/s')
     >>> g1 = models.Gaussian1D(amplitude=30 * u.Jy, mean=mean1, stddev=10. * u.AA)
     >>> g2 = models.Gaussian1D(amplitude=30 * u.Jy, mean=mean2, stddev=10. * u.AA)
     >>> flux1 = f1 + g1(spec_axis)
     >>> flux2 = f2 + g2(spec_axis)
-    >>> uncertainty = StdDevUncertainty(0.2*np.ones(flux.shape)*u.Jy)
+    >>> uncertainty = StdDevUncertainty(0.2*np.ones(size)*u.Jy)
     >>> ospec = Spectrum1D(spectral_axis=spec_axis, \
                            flux=flux1, \
                            uncertainty=uncertainty, \
