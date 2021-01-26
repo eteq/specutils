@@ -16,12 +16,11 @@ class SpectralRegion:
 
     Parameters
     ----------
-
-    lower : Scalar `~astropy.units.Quantity` with pixel or any valid ``spectral_axis`` unit
-       The lower bound of the region.
-
-    upper : Scalar `~astropy.units.Quantity` with pixel or any valid ``spectral_axis`` unit
-       The upper bound of the region.
+    Either a single parameter or two parameters can be given.  If two
+    parameters, they are the ``lower`` and ``upper`` bounds as 
+    `~astropy.units.Quantity` objects.  If a single parameter, it must be a
+    list of length-2 `~astropy.units.Quantity` objects. each giving the lower
+    and upper bounds in order.
 
     Notes
     -----
