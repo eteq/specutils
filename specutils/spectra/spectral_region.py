@@ -11,16 +11,20 @@ class SpectralRegion:
     spectral coordinate.
 
     This class can either represent a single contiguous region or a set of
-    regions related to each other in some way (For example, a pair of 
+    regions related to each other in some way (For example, a pair of
     continuum windows around a line or a doublet of lines).
 
     Parameters
     ----------
-    Either a single parameter or two parameters can be given.  If two
-    parameters, they are the ``lower`` and ``upper`` bounds as 
-    `~astropy.units.Quantity` objects.  If a single parameter, it must be a
-    list of length-2 `~astropy.units.Quantity` objects. each giving the lower
-    and upper bounds in order.
+    *args : variable
+        Either a single parameter or two parameters can be given:
+
+        * 1 argument ``regioniter``: An iterable of length-2
+          `~astropy.units.Quantity` objects (or a single n x 2
+          `~astropy.units.Quantity` object), where the length-2 dimension is
+          ``lower``, ``upper``.
+        * ``lower``, ``upper``: Each should be an `~astropy.units.Quantity`
+          object.
 
     Notes
     -----
@@ -209,6 +213,10 @@ class SpectralRegion:
 
     @property
     def subregions(self):
+        """
+        An iterable over ``(lower, upper)`` tuples that are each of the
+        sub-regions.
+        """
         return self._subregions
 
     @property
